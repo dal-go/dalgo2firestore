@@ -3,7 +3,7 @@ module github.com/strongo/dalgo2firestore
 go 1.19
 
 require (
-	cloud.google.com/go/firestore v1.7.0
+	cloud.google.com/go/firestore v1.8.0
 	github.com/pkg/errors v0.9.1
 	github.com/strongo/dalgo v0.0.13
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
@@ -29,8 +29,8 @@ require (
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	golang.org/x/tools v0.1.5 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
-	google.golang.org/api v0.96.0 // indirect
+	google.golang.org/api v0.98.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220920201722-2b89144ce006 // indirect
+	google.golang.org/genproto v0.0.0-20221010155953-15ba04fc1c0e // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
