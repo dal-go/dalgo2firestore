@@ -7,7 +7,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/strongo/dalgo v0.0.13
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
-	google.golang.org/grpc v1.51.0
+	google.golang.org/grpc v1.52.0
 )
 
 require (
@@ -23,11 +23,11 @@ require (
 	github.com/strongo/random v0.0.0-20201120164511-f20cfe28165d // indirect
 	github.com/strongo/validation v0.0.0-20210908182457-7acc8bdbeffd // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
+	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
