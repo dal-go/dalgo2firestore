@@ -7,7 +7,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/strongo/dalgo v0.0.13
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
-	google.golang.org/grpc v1.52.0
+	google.golang.org/grpc v1.52.3
 )
 
 require (
