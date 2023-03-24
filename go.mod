@@ -5,7 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/firestore v1.9.0
 	github.com/pkg/errors v0.9.1
-	github.com/strongo/dalgo v0.0.13
+	github.com/strongo/dalgo v0.0.16
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
 	google.golang.org/grpc v1.54.0
 )

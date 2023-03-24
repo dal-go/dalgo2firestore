@@ -238,6 +238,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/strongo/dalgo v0.0.13 h1:e2ogzPbusj3TTuO+9PLYvgSO3UsmMNgtXo+WQlOCucA=
 github.com/strongo/dalgo v0.0.13/go.mod h1:Fe2C4vOAvaFQVkksFIKr6tS6u1akLZ+Fs6hPpn0WtB8=
+github.com/strongo/dalgo v0.0.16 h1:U2H72Nl9Lhu2yDnC/+59iWXtYMoFW92t5qXlM+QdR8U=
+github.com/strongo/dalgo v0.0.16/go.mod h1:jIiwwkBc9fsJL6E17pVO/5h3RX1uErw0TdNBGful9pY=
 github.com/strongo/random v0.0.0-20201120164511-f20cfe28165d h1:I8qa7ggQ5RT+hO5gTTaBtS8ZEvbsBIik//AdM4dZL4g=
 github.com/strongo/random v0.0.0-20201120164511-f20cfe28165d/go.mod h1:b5FiRTvklOIQI/iX+4qfwtK7Jrs+9KTZFn1dP9iX26o=
 github.com/strongo/validation v0.0.0-20210908182457-7acc8bdbeffd h1:hvHVKVARPjItp1EQxTk0v3SxE8fICA3n0s2iVeejhOU=
