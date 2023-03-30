@@ -8,6 +8,7 @@
         "strongo"
       ],
       "matchUpdateTypes": [
+        "major",
         "minor",
         "patch",
         "pin",

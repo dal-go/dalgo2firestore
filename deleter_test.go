@@ -31,7 +31,7 @@ func newDeleterMock() *deleterMock {
 func TestDeleter_Delete(t *testing.T) {
 	deleterMock := newDeleterMock()
 	ctx := context.Background()
-	key := dal.NewKeyWithStrID("TestKind", "test-id")
+	key := dal.NewKeyWithID("TestKind", "test-id")
 	err := deleterMock.deleter.Delete(ctx, key)
 	if err != nil {
 		t.Errorf("expected to be successful, got error: %v", err)

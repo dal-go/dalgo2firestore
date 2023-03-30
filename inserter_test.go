@@ -28,7 +28,7 @@ func newInserterMock() *inserterMock {
 func TestInserter_Insert(t *testing.T) {
 	inserterMock := newInserterMock()
 	ctx := context.Background()
-	key := dal.NewKeyWithStrID("TestKind", "test-id")
+	key := dal.NewKeyWithID("TestKind", "test-id")
 	data := new(testKind)
 	record := dal.NewRecordWithData(key, data)
 	err := inserterMock.inserter.Insert(ctx, record)

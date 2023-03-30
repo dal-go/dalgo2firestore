@@ -37,7 +37,7 @@ type testKind struct {
 func TestGetter_Get(t *testing.T) {
 	gm := newGetterMock()
 	ctx := context.Background()
-	key := dal.NewKeyWithStrID("TestKind", "TestID")
+	key := dal.NewKeyWithID("TestKind", "TestID")
 	data := new(testKind)
 	record := dal.NewRecordWithData(key, data)
 	err := gm.getter.Get(ctx, record)
