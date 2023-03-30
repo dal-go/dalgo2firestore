@@ -9,15 +9,15 @@ import (
 type setter struct {
 	doc   func(key *dal.Key) *firestore.DocumentRef
 	set   func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error)
-	batch func() *firestore.WriteBatch
+	batch func(ctx context.Context) *firestore.BulkWriter
 }
 
 func newSetter(dtb database) setter {
 	return setter{
 		doc: dtb.doc,
 		set: set,
-		batch: func() *firestore.WriteBatch {
-			return dtb.client.Batch()
+		batch: func(ctx context.Context) *firestore.BulkWriter {
+			return dtb.client.BulkWriter(ctx)
 		},
 	}
 }
@@ -31,13 +31,15 @@ func (s setter) Set(ctx context.Context, record dal.Record) error {
 }
 
 func (s setter) SetMulti(ctx context.Context, records []dal.Record) error {
-	batch := s.batch()
+	batch := s.batch(ctx)
 	for _, record := range records {
 		key := record.Key()
 		docRef := s.doc(key)
 		data := record.Data()
-		batch.Set(docRef, data)
+		if _, err := batch.Set(docRef, data); err != nil {
+			return err
+		}
 	}
-	_, err := batch.Commit(ctx)
-	return err
+	batch.End()
+	return nil
 }

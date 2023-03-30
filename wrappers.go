@@ -21,6 +21,6 @@ var get = func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore
 	return docRef.Get(ctx)
 }
 
-var getAll = func(ctx context.Context, client *firestore.Client, docRefs []*firestore.DocumentRef) (_ []*firestore.DocumentSnapshot, err error) {
-	return client.GetAll(ctx, docRefs)
-}
+//var getAll = func(ctx context.Context, client *firestore.Client, docRefs []*firestore.DocumentRef) (_ []*firestore.DocumentSnapshot, err error) {
+//	return client.GetAll(ctx, docRefs)
+//}

@@ -9,15 +9,15 @@ import (
 type deleter struct {
 	doc    func(key *dal.Key) *firestore.DocumentRef
 	delete func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.WriteResult, err error)
-	batch  func() *firestore.WriteBatch
+	batch  func(ctx context.Context) *firestore.BulkWriter
 }
 
 func newDeleter(dtb database) deleter {
 	return deleter{
 		doc:    dtb.doc,
 		delete: delete,
-		batch: func() *firestore.WriteBatch {
-			return dtb.client.Batch()
+		batch: func(c context.Context) *firestore.BulkWriter {
+			return dtb.client.BulkWriter(c)
 		},
 	}
 }
@@ -29,11 +29,13 @@ func (d deleter) Delete(ctx context.Context, key *dal.Key) error {
 }
 
 func (d deleter) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
-	batch := d.batch()
+	batch := d.batch(ctx)
 	for _, key := range keys {
 		docRef := d.doc(key)
-		batch.Delete(docRef)
+		if _, err := batch.Delete(docRef); err != nil {
+			return err
+		}
 	}
-	_, err := batch.Commit(ctx)
-	return err
+	batch.End()
+	return nil
 }
