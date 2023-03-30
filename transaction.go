@@ -123,5 +123,3 @@ func (t transaction) DeleteMulti(_ context.Context, keys []*dal.Key) error {
 	}
 	return nil
 }
-
-var _ dal.Transaction = (*transaction)(nil)
