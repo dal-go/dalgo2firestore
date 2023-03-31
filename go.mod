@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/firestore v1.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/strongo/dalgo v0.0.20
-	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
 	google.golang.org/grpc v1.54.0
 )
 
@@ -29,7 +28,6 @@ require (
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.7.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/api v0.114.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
