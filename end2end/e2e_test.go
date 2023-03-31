@@ -1,10 +1,11 @@
-package dalgo2firestore
+package end2end
 
 import (
 	"bytes"
 	"cloud.google.com/go/firestore"
 	"context"
 	"github.com/strongo/dalgo/end2end"
+	"github.com/strongo/dalgo2firestore"
 	"io"
 	"log"
 	"os"
@@ -153,7 +154,7 @@ func testEndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create Firestore client: %v", err)
 	}
-	db := NewDatabase(client)
+	db := dalgo2firestore.NewDatabase(client)
 
 	end2end.TestDalgoDB(t, db)
 }
