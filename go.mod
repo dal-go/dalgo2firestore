@@ -5,7 +5,7 @@ go 1.20
 require (
 	cloud.google.com/go/firestore v1.9.0
 	github.com/pkg/errors v0.9.1
-	github.com/strongo/dalgo v0.0.20
+	github.com/strongo/dalgo v0.0.23
 	google.golang.org/grpc v1.54.0
 )
 
