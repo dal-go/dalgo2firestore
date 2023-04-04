@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/strongo/dalgo/dal"
+	"github.com/dal-go/dalgo/dal"
 )
 
 func (dtb database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) error {

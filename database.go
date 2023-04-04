@@ -3,7 +3,7 @@ package dalgo2firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/strongo/dalgo/dal"
+	"github.com/dal-go/dalgo/dal"
 )
 
 // NewDatabase creates new instance of dalgo interface to Firestore

@@ -3,8 +3,8 @@ package dalgo2firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"github.com/dal-go/dalgo/dal"
 	"github.com/pkg/errors"
-	"github.com/strongo/dalgo/dal"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
