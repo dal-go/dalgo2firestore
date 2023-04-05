@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/dal-go/dalgo/end2end"
+	end2end "github.com/dal-go/dalgo-end2end-tests"
 	"github.com/dal-go/dalgo2firestore"
 	"io"
 	"log"

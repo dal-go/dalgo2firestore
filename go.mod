@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	cloud.google.com/go/firestore v1.9.0
-	github.com/dal-go/dalgo v0.2.2
+	github.com/dal-go/dalgo v0.2.3
 	github.com/pkg/errors v0.9.1
 	google.golang.org/grpc v1.54.0
 )
@@ -16,6 +16,7 @@ require (
 	cloud.google.com/go/compute v1.19.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/longrunning v0.4.1 // indirect
+	github.com/dal-go/dalgo-end2end-tests v0.0.7 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
