@@ -16,6 +16,10 @@ jobs:
   go_ci:
     runs-on: ubuntu-latest
 
+    env:
+      DALGO_E2E_PROJECT_ID: ${{ secrets.DALGO_E2E_PROJECT_ID }}
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/GOOGLE_APPLICATION_CREDENTIALS.json
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
