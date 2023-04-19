@@ -53,6 +53,9 @@ func (dtb database) Client() dal.ClientInfo {
 var _ dal.Database = (*database)(nil)
 
 func (dtb database) doc(key *dal.Key) *firestore.DocumentRef {
+	if key == nil {
+		panic("key is a required parameter, got nil")
+	}
 	path := PathFromKey(key)
 	return dtb.client.Doc(path)
 }

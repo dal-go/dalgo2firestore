@@ -3,6 +3,7 @@ package dalgo2firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"fmt"
 	"github.com/dal-go/dalgo/dal"
 )
 
@@ -22,11 +23,20 @@ func newSetter(dtb database) setter {
 	}
 }
 
-func (s setter) Set(ctx context.Context, record dal.Record) error {
+func (s setter) Set(ctx context.Context, record dal.Record) (err error) {
+	if record == nil {
+		panic("record is a required parameter, got nil")
+	}
 	key := record.Key()
+	if key == nil {
+		panic("record.Key() returned nil")
+	}
 	docRef := s.doc(key)
+	if docRef == nil {
+		return fmt.Errorf("docRef is nil for key=%v", key)
+	}
 	data := record.Data()
-	_, err := s.set(ctx, docRef, data)
+	_, err = s.set(ctx, docRef, data)
 	return err
 }
 
