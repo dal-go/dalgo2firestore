@@ -11,14 +11,14 @@ func (dtb database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker
 	options = append(options, dal.TxWithReadonly())
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
 	return dtb.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		return f(ctx, transaction{dtb: dtb, tx: tx})
+		return f(ctx, transaction{dtb: dtb, tx: tx, QueryExecutor: dtb.QueryExecutor})
 	}, firestoreTxOptions...)
 }
 
 func (dtb database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
 	return dtb.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		return f(ctx, transaction{dtb: dtb, tx: tx})
+		return f(ctx, transaction{dtb: dtb, tx: tx, QueryExecutor: dtb.QueryExecutor})
 	}, firestoreTxOptions...)
 }
 
@@ -31,19 +31,21 @@ func createFirestoreTransactionOptions(opts []dal.TransactionOption) (options []
 }
 
 var _ dal.Transaction = (*transaction)(nil)
+var _ dal.ReadwriteTransaction = (*transaction)(nil)
 
 type transaction struct {
 	tx      *firestore.Transaction
 	options dal.TransactionOptions
 	dtb     database
+	dal.QueryExecutor
+}
+
+func (t transaction) ID() string {
+	return ""
 }
 
 func (t transaction) Options() dal.TransactionOptions {
 	return t.options
-}
-
-func (t transaction) Select(ctx context.Context, query dal.Select) (dal.Reader, error) {
-	panic("implement me")
 }
 
 func (t transaction) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {

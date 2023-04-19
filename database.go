@@ -7,12 +7,20 @@ import (
 )
 
 // NewDatabase creates new instance of dalgo interface to Firestore
-func NewDatabase(client *firestore.Client) dal.Database {
+func NewDatabase(id string, client *firestore.Client) (db dal.Database) {
+	if id == "" {
+		panic("id is a required field, got empty string")
+	}
 	if client == nil {
 		panic("client is a required field, got nil")
 	}
+	var getReader = func(c context.Context, query dal.Query) (reader dal.Reader, err error) {
+		return newFirestoreReader(c, client, query)
+	}
 	dtb := database{
-		client: client,
+		id:            id,
+		client:        client,
+		QueryExecutor: dal.NewQueryExecutor(getReader),
 	}
 	dtb.inserter = newInserter(dtb)
 	dtb.deleter = newDeleter(dtb)
@@ -24,17 +32,22 @@ func NewDatabase(client *firestore.Client) dal.Database {
 
 // database implements dal.Database
 type database struct {
+	id string
 	inserter
 	deleter
 	getter
 	setter
 	updater
 	client *firestore.Client
+	dal.QueryExecutor
 }
 
-// Select implement respetive method from dal.ReadonlySession
-func (dtb database) Select(ctx context.Context, query dal.Select) (dal.Reader, error) {
-	panic("implement me")
+func (dtb database) ID() string {
+	return dtb.id
+}
+
+func (dtb database) Client() dal.ClientInfo {
+	return dal.NewClientInfo("firestore", "v1.9.0")
 }
 
 var _ dal.Database = (*database)(nil)

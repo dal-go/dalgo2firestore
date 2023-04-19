@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewDatabase(t *testing.T) {
-	var dtb = NewDatabase(&firestore.Client{})
+	var dtb = NewDatabase("test-db", &firestore.Client{})
 	if dtb == nil {
 		t.Error("NewDatabase returned nil")
 	}

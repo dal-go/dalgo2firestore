@@ -154,7 +154,7 @@ func testEndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create Firestore client: %v", err)
 	}
-	db := dalgo2firestore.NewDatabase(client)
+	db := dalgo2firestore.NewDatabase("test-db", client)
 
 	end2end.TestDalgoDB(t, db)
 }
