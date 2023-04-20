@@ -13,7 +13,7 @@ import (
 //	create      func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error)
 //}
 //
-//func newInserter(db Database) inserter {
+//func newInserter(db database) inserter {
 //	return inserter{
 //		client:      db.client,
 //		create:      create,
@@ -21,7 +21,7 @@ import (
 //	}
 //}
 
-func (db Database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
+func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
 	options := dal.NewInsertOptions(opts...)
 	generateID := options.IDGenerator()
 	if generateID != nil {
@@ -33,7 +33,7 @@ func (db Database) Insert(ctx context.Context, record dal.Record, opts ...dal.In
 	return err
 }
 
-func (db Database) insert(ctx context.Context, record dal.Record) (*firestore.WriteResult, error) {
+func (db database) insert(ctx context.Context, record dal.Record) (*firestore.WriteResult, error) {
 	key := record.Key()
 	docRef := keyToDocRef(key, db.client)
 	if docRef != nil {

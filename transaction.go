@@ -7,7 +7,7 @@ import (
 	"github.com/dal-go/dalgo/dal"
 )
 
-func (db Database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) error {
+func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) error {
 	options = append(options, dal.TxWithReadonly())
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
 	return db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
@@ -15,7 +15,7 @@ func (db Database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker,
 	}, firestoreTxOptions...)
 }
 
-func (db Database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
+func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
 	return db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
@@ -34,7 +34,7 @@ var _ dal.Transaction = (*transaction)(nil)
 var _ dal.ReadwriteTransaction = (*transaction)(nil)
 
 type transaction struct {
-	db      Database
+	db      database
 	tx      *firestore.Transaction
 	options dal.TransactionOptions
 	dal.QueryExecutor

@@ -8,16 +8,16 @@ import (
 )
 
 //type updater struct {
-//	db *Database
+//	db *database
 //}
 //
-//func newUpdater(db *Database) updater {
+//func newUpdater(db *database) updater {
 //	return updater{
 //		db: db,
 //	}
 //}
 
-func (db Database) Update(
+func (db database) Update(
 	ctx context.Context,
 	key *dal.Key,
 	update []dal.Update,
@@ -28,7 +28,7 @@ func (db Database) Update(
 	})
 }
 
-func (db Database) UpdateMulti(
+func (db database) UpdateMulti(
 	ctx context.Context,
 	keys []*dal.Key,
 	updates []dal.Update,

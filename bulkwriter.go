@@ -5,6 +5,6 @@ import (
 	"context"
 )
 
-func (db Database) bulkWriter(ctx context.Context) *firestore.BulkWriter {
+func (db database) bulkWriter(ctx context.Context) *firestore.BulkWriter {
 	return db.client.BulkWriter(ctx)
 }

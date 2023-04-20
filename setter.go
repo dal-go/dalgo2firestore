@@ -13,7 +13,7 @@ import (
 //	bulkWriter       func(ctx context.Context) *firestore.BulkWriter
 //}
 
-//func newSetter(dtb Database) setter {
+//func newSetter(dtb database) setter {
 //	return setter{
 //		keyToDocRef: keyToDocRef,
 //		set:         set,
@@ -23,7 +23,7 @@ import (
 //	}
 //}
 
-func (db Database) Set(ctx context.Context, record dal.Record) (err error) {
+func (db database) Set(ctx context.Context, record dal.Record) (err error) {
 	if record == nil {
 		panic("record is a required parameter, got nil")
 	}
@@ -37,7 +37,7 @@ func (db Database) Set(ctx context.Context, record dal.Record) (err error) {
 	return err
 }
 
-func (db Database) SetMulti(ctx context.Context, records []dal.Record) error {
+func (db database) SetMulti(ctx context.Context, records []dal.Record) error {
 	batch := db.bulkWriter(ctx)
 	for _, record := range records {
 		key := record.Key()

@@ -12,7 +12,7 @@ import (
 //	bulkWriter       func(ctx context.Context) *firestore.BulkWriter
 //}
 
-//func newDeleter(dtb Database) deleter {
+//func newDeleter(dtb database) deleter {
 //	return deleter{
 //		client:      dtb.client,
 //		keyToDocRef: keyToDocRef,
@@ -23,15 +23,15 @@ import (
 //	}
 //}
 
-// Delete deletes a record from the Database.
-func (db Database) Delete(ctx context.Context, key *dal.Key) error {
+// Delete deletes a record from the database.
+func (db database) Delete(ctx context.Context, key *dal.Key) error {
 	docRef := db.keyToDocRef(key)
 	_, err := delete(ctx, docRef)
 	return err
 }
 
-// DeleteMulti deletes multiple records from the Database.
-func (db Database) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
+// DeleteMulti deletes multiple records from the database.
+func (db database) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
 	batch := db.bulkWriter(ctx)
 	for _, key := range keys {
 		docRef := db.keyToDocRef(key)

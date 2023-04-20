@@ -17,7 +17,7 @@ import (
 //	getAll      func(ctx context.Context, docRefs []*firestore.DocumentRef) (_ []*firestore.DocumentSnapshot, err error)
 //}
 
-//func newGetter(db Database) getter {
+//func newGetter(db database) getter {
 //	return getter{
 //		client:      db.client,
 //		keyToDocRef: keyToDocRef,
@@ -33,7 +33,7 @@ var dataTo = func(ds *firestore.DocumentSnapshot, p interface{}) error {
 	return ds.DataTo(p)
 }
 
-func (db Database) Get(ctx context.Context, record dal.Record) error {
+func (db database) Get(ctx context.Context, record dal.Record) error {
 	key := record.Key()
 	docRef := db.keyToDocRef(key)
 	docSnapshot, err := get(ctx, docRef)
@@ -67,7 +67,7 @@ func docSnapshotToRecord(
 	return nil
 }
 
-func (db Database) GetMulti(ctx context.Context, records []dal.Record) error {
+func (db database) GetMulti(ctx context.Context, records []dal.Record) error {
 	docRefs := make([]*firestore.DocumentRef, len(records))
 	for i, rec := range records {
 		key := rec.Key()
