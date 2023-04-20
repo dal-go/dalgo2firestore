@@ -25,23 +25,41 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 	return query.Documents(c), err
 }
 
-func dalWhereToFirestoreWhere(condition dal.Condition, query firestore.Query) (firestore.Query, error) {
-	if condition == nil {
-		return query, nil
-	}
-	switch cond := condition.(type) {
-	case dal.Comparison:
-		switch right := cond.Right.(type) {
-		case dal.Constant:
-			query.Where(cond.Left.String(), string(cond.Operator), right.Value)
+func dalWhereToFirestoreWhere(where dal.Condition, q firestore.Query) (firestore.Query, error) {
+	var applyComparison = func(comparison dal.Comparison) error {
+		switch left := comparison.Left.(type) {
+		case dal.FieldRef:
+			switch right := comparison.Right.(type) {
+			case dal.Constant:
+				q = q.Where(left.Name, string(comparison.Operator), right.Value)
+			default:
+				return fmt.Errorf("only FieldRef are supported as left operand, got: %T", right)
+			}
 		default:
-			return query, dal.ErrNotSupported
+			return fmt.Errorf("only FieldRef are supported as left operand, got: %T", left)
 		}
-
-	case dal.GroupCondition:
-		return query, dal.ErrNotImplementedYet
-	default:
-		return query, fmt.Errorf("%w: %T", dal.ErrNotSupported, cond)
+		return nil
 	}
-	return query, nil
+
+	switch cond := where.(type) {
+	case dal.GroupCondition:
+		if cond.Operator() != dal.And {
+			return q, fmt.Errorf("only AND operator is supported in group condition, got: %v", cond.Operator())
+		}
+		for _, c := range cond.Conditions() {
+			switch c := c.(type) {
+			case dal.Comparison:
+				if err := applyComparison(c); err != nil {
+					return q, err
+				}
+			default:
+				return q, fmt.Errorf("only comparisons are supported in group condition, got: %T", c)
+			}
+		}
+		return q, nil
+	case dal.Comparison:
+		return q, applyComparison(cond)
+	default:
+		return q, fmt.Errorf("only comparison or group conditions are supported at root level of where clause, got: %T", cond)
+	}
 }
