@@ -12,22 +12,23 @@ type queryProvider interface {
 }
 
 func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestore.Client) (docIterator *firestore.DocumentIterator, err error) {
-	query := client.Collection(q.From.Name).Offset(q.Offset)
-	if q.Limit > 0 {
-		query = query.Limit(q.Limit)
+	query := client.Collection(q.From().Name).Offset(q.Offset())
+	if limit := q.Limit(); limit > 0 {
+		query.Limit(limit)
 	}
-	if q.StartCursor != "" {
-		query = query.StartAt(q.StartCursor)
+	if startFrom := q.StartFrom(); startFrom != "" {
+		query.StartAt(startFrom)
 	}
-	if q.Where != nil {
-		if query, err = dalWhereToFirestoreWhere(q.Where, query); err != nil {
-			return
-		}
+	if query, err = dalWhereToFirestoreWhere(q.Where(), query); err != nil {
+		return
 	}
 	return query.Documents(c), err
 }
 
 func dalWhereToFirestoreWhere(condition dal.Condition, query firestore.Query) (firestore.Query, error) {
+	if condition == nil {
+		return query, nil
+	}
 	switch cond := condition.(type) {
 	case dal.Comparison:
 		switch right := cond.Right.(type) {
