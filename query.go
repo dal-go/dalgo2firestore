@@ -8,6 +8,9 @@ import (
 )
 
 func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestore.Client) (docIterator *firestore.DocumentIterator, err error) {
+	if client == nil {
+		panic("client is a required parameter, got nil")
+	}
 	query := client.Collection(q.From().Name).Offset(q.Offset())
 	if limit := q.Limit(); limit > 0 {
 		query.Limit(limit)

@@ -52,6 +52,9 @@ func (d *firestoreReader) Cursor() (string, error) {
 }
 
 func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Query) (dal.Reader, error) {
+	if query == nil {
+		return nil, fmt.Errorf("query is required parameter, got nil")
+	}
 	var err error
 	r := new(firestoreReader)
 	r.docIterator, err = dalQuery2firestoreIterator(c, query, client)
