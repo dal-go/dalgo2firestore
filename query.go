@@ -7,10 +7,6 @@ import (
 	"github.com/dal-go/dalgo/dal"
 )
 
-type queryProvider interface {
-	Documents() *firestore.DocumentIterator
-}
-
 func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestore.Client) (docIterator *firestore.DocumentIterator, err error) {
 	query := client.Collection(q.From().Name).Offset(q.Offset())
 	if limit := q.Limit(); limit > 0 {
