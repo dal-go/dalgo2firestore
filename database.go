@@ -7,7 +7,7 @@ import (
 )
 
 // NewDatabase creates new instance of dalgo interface to Firestore
-func NewDatabase(id string, client *firestore.Client) (db dal.Database) {
+func NewDatabase(id string, client *firestore.Client) (db Database) {
 	if id == "" {
 		panic("id is a required field, got empty string")
 	}
@@ -17,49 +17,38 @@ func NewDatabase(id string, client *firestore.Client) (db dal.Database) {
 	var getReader = func(c context.Context, query dal.Query) (reader dal.Reader, err error) {
 		return newFirestoreReader(c, client, query)
 	}
-	dtb := database{
+	db = Database{
 		id:            id,
 		client:        client,
 		QueryExecutor: dal.NewQueryExecutor(getReader),
 	}
-	dtb.inserter = newInserter(dtb)
-	dtb.deleter = newDeleter(dtb)
-	dtb.getter = newGetter(dtb)
-	dtb.setter = newSetter(dtb)
-	dtb.updater = newUpdater(&dtb)
-	return dtb
+	return db
 }
 
-// database implements dal.Database
-type database struct {
-	id string
-	inserter
-	deleter
-	getter
-	setter
-	updater
+var _ dal.Database = Database{}
+var _ dal.Database = (*Database)(nil)
+
+// Database implements dal.Database
+type Database struct {
+	id     string
 	client *firestore.Client
 	dal.QueryExecutor
 }
 
-func (dtb database) ID() string {
-	return dtb.id
+func (db Database) ID() string {
+	return db.id
 }
 
-func (dtb database) Client() dal.ClientInfo {
+func (db Database) Client() dal.ClientInfo {
 	return dal.NewClientInfo("firestore", "v1.9.0")
 }
 
-var _ dal.Database = (*database)(nil)
+var _ dal.Database = (*Database)(nil)
 
-func (dtb database) doc(key *dal.Key) *firestore.DocumentRef {
-	if key == nil {
-		panic("key is a required parameter, got nil")
-	}
-	path := PathFromKey(key)
-	return dtb.client.Doc(path)
+func (db Database) Upsert(ctx context.Context, record dal.Record) error {
+	panic("implement me")
 }
 
-func (dtb database) Upsert(ctx context.Context, record dal.Record) error {
-	panic("implement me")
+func (db Database) keyToDocRef(key *dal.Key) *firestore.DocumentRef {
+	return keyToDocRef(key, db.client)
 }

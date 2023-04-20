@@ -1,37 +1,40 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"github.com/dal-go/dalgo/dal"
 )
 
-type deleter struct {
-	doc    func(key *dal.Key) *firestore.DocumentRef
-	delete func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.WriteResult, err error)
-	batch  func(ctx context.Context) *firestore.BulkWriter
-}
+//type deleter struct {
+//	client      *firestore.Client
+//	keyToDocRef keyToDocRefFunc
+//	delete      func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.WriteResult, err error)
+//	bulkWriter       func(ctx context.Context) *firestore.BulkWriter
+//}
 
-func newDeleter(dtb database) deleter {
-	return deleter{
-		doc:    dtb.doc,
-		delete: delete,
-		batch: func(c context.Context) *firestore.BulkWriter {
-			return dtb.client.BulkWriter(c)
-		},
-	}
-}
+//func newDeleter(dtb Database) deleter {
+//	return deleter{
+//		client:      dtb.client,
+//		keyToDocRef: keyToDocRef,
+//		delete:      delete,
+//		bulkWriter: func(c context.Context) *firestore.BulkWriter {
+//
+//		},
+//	}
+//}
 
-func (d deleter) Delete(ctx context.Context, key *dal.Key) error {
-	docRef := d.doc(key)
-	_, err := d.delete(ctx, docRef)
+// Delete deletes a record from the Database.
+func (db Database) Delete(ctx context.Context, key *dal.Key) error {
+	docRef := db.keyToDocRef(key)
+	_, err := delete(ctx, docRef)
 	return err
 }
 
-func (d deleter) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
-	batch := d.batch(ctx)
+// DeleteMulti deletes multiple records from the Database.
+func (db Database) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
+	batch := db.bulkWriter(ctx)
 	for _, key := range keys {
-		docRef := d.doc(key)
+		docRef := db.keyToDocRef(key)
 		if _, err := batch.Delete(docRef); err != nil {
 			return err
 		}

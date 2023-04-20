@@ -7,18 +7,18 @@ import (
 	"github.com/dal-go/dalgo/dal"
 )
 
-func (dtb database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) error {
+func (db Database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) error {
 	options = append(options, dal.TxWithReadonly())
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
-	return dtb.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		return f(ctx, transaction{dtb: dtb, tx: tx, QueryExecutor: dtb.QueryExecutor})
+	return db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
 	}, firestoreTxOptions...)
 }
 
-func (dtb database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
+func (db Database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
-	return dtb.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		return f(ctx, transaction{dtb: dtb, tx: tx, QueryExecutor: dtb.QueryExecutor})
+	return db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
 	}, firestoreTxOptions...)
 }
 
@@ -34,9 +34,9 @@ var _ dal.Transaction = (*transaction)(nil)
 var _ dal.ReadwriteTransaction = (*transaction)(nil)
 
 type transaction struct {
+	db      Database
 	tx      *firestore.Transaction
 	options dal.TransactionOptions
-	dtb     database
 	dal.QueryExecutor
 }
 
@@ -55,19 +55,19 @@ func (t transaction) Insert(ctx context.Context, record dal.Record, opts ...dal.
 	if key.ID == nil {
 		key.ID = idGenerator(ctx, record)
 	}
-	dr := t.dtb.doc(key)
+	dr := t.db.keyToDocRef(key)
 	data := record.Data()
 	return t.tx.Create(dr, data)
 }
 
 func (t transaction) Upsert(_ context.Context, record dal.Record) error {
-	dr := t.dtb.doc(record.Key())
+	dr := t.db.keyToDocRef(record.Key())
 	return t.tx.Set(dr, record.Data())
 }
 
 func (t transaction) Get(_ context.Context, record dal.Record) error {
 	key := record.Key()
-	docRef := t.dtb.doc(key)
+	docRef := t.db.keyToDocRef(key)
 	docSnapshot, err := t.tx.Get(docRef)
 	return docSnapshotToRecord(err, docSnapshot, record, func(ds *firestore.DocumentSnapshot, p interface{}) error {
 		return ds.DataTo(p)
@@ -75,19 +75,19 @@ func (t transaction) Get(_ context.Context, record dal.Record) error {
 }
 
 func (t transaction) Set(ctx context.Context, record dal.Record) error {
-	dr := t.dtb.doc(record.Key())
+	dr := t.db.keyToDocRef(record.Key())
 	return t.tx.Set(dr, record.Data())
 }
 
 func (t transaction) Delete(ctx context.Context, key *dal.Key) error {
-	dr := t.dtb.doc(key)
+	dr := t.db.keyToDocRef(key)
 	return t.tx.Delete(dr)
 }
 
 func (t transaction) GetMulti(ctx context.Context, records []dal.Record) error {
 	dr := make([]*firestore.DocumentRef, len(records))
 	for i, r := range records {
-		dr[i] = t.dtb.doc(r.Key())
+		dr[i] = t.db.keyToDocRef(r.Key())
 	}
 	ds, err := t.tx.GetAll(dr)
 	if err != nil {
@@ -106,7 +106,7 @@ func (t transaction) GetMulti(ctx context.Context, records []dal.Record) error {
 
 func (t transaction) SetMulti(ctx context.Context, records []dal.Record) error {
 	for _, record := range records { // TODO: can we do this in parallel?
-		doc := t.dtb.doc(record.Key())
+		doc := t.db.keyToDocRef(record.Key())
 		_, err := doc.Set(ctx, record.Data())
 		if err != nil {
 			record.SetError(err)
@@ -118,7 +118,7 @@ func (t transaction) SetMulti(ctx context.Context, records []dal.Record) error {
 
 func (t transaction) DeleteMulti(_ context.Context, keys []*dal.Key) error {
 	for _, k := range keys {
-		dr := t.dtb.doc(k)
+		dr := t.db.keyToDocRef(k)
 		if err := t.tx.Delete(dr); err != nil {
 			return fmt.Errorf("failed to delete record: %w", err)
 		}

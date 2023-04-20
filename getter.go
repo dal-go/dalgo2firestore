@@ -9,29 +9,35 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type getter struct {
-	doc    func(key *dal.Key) *firestore.DocumentRef
-	dataTo func(ds *firestore.DocumentSnapshot, p interface{}) error
-	get    func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.DocumentSnapshot, err error)
-	getAll func(ctx context.Context, docRefs []*firestore.DocumentRef) (_ []*firestore.DocumentSnapshot, err error)
+//type getter struct {
+//	client      *firestore.Client
+//	keyToDocRef keyToDocRefFunc
+//	dataTo      func(ds *firestore.DocumentSnapshot, p interface{}) error
+//	get         func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.DocumentSnapshot, err error)
+//	getAll      func(ctx context.Context, docRefs []*firestore.DocumentRef) (_ []*firestore.DocumentSnapshot, err error)
+//}
+
+//func newGetter(db Database) getter {
+//	return getter{
+//		client:      db.client,
+//		keyToDocRef: keyToDocRef,
+//		get:         get,
+//		getAll:      db.client.GetAll,
+//		dataTo: func(ds *firestore.DocumentSnapshot, p interface{}) error {
+//			return ds.DataTo(p)
+//		},
+//	}
+//}
+
+var dataTo = func(ds *firestore.DocumentSnapshot, p interface{}) error {
+	return ds.DataTo(p)
 }
 
-func newGetter(dtb database) getter {
-	return getter{
-		doc:    dtb.doc,
-		get:    get,
-		getAll: dtb.client.GetAll,
-		dataTo: func(ds *firestore.DocumentSnapshot, p interface{}) error {
-			return ds.DataTo(p)
-		},
-	}
-}
-
-func (g getter) Get(ctx context.Context, record dal.Record) error {
+func (db Database) Get(ctx context.Context, record dal.Record) error {
 	key := record.Key()
-	docRef := g.doc(key)
-	docSnapshot, err := g.get(ctx, docRef)
-	return docSnapshotToRecord(err, docSnapshot, record, g.dataTo)
+	docRef := db.keyToDocRef(key)
+	docSnapshot, err := get(ctx, docRef)
+	return docSnapshotToRecord(err, docSnapshot, record, dataTo)
 }
 
 func docSnapshotToRecord(
@@ -61,18 +67,19 @@ func docSnapshotToRecord(
 	return nil
 }
 
-func (g getter) GetMulti(ctx context.Context, records []dal.Record) error {
+func (db Database) GetMulti(ctx context.Context, records []dal.Record) error {
 	docRefs := make([]*firestore.DocumentRef, len(records))
 	for i, rec := range records {
-		docRefs[i] = g.doc(rec.Key())
+		key := rec.Key()
+		docRefs[i] = db.keyToDocRef(key)
 	}
-	docSnapshots, err := g.getAll(ctx, docRefs)
+	docSnapshots, err := db.client.GetAll(ctx, docRefs)
 	if err != nil {
 		return err
 	}
 	allErrors := make([]error, 0, len(records))
 	for i, rec := range records {
-		if err = docSnapshotToRecord(nil, docSnapshots[i], rec, g.dataTo); err != nil && !dal.IsNotFound(err) {
+		if err = docSnapshotToRecord(nil, docSnapshots[i], rec, dataTo); err != nil && !dal.IsNotFound(err) {
 			allErrors = append(allErrors, err)
 		}
 	}

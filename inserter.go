@@ -7,19 +7,21 @@ import (
 	"log"
 )
 
-type inserter struct {
-	doc    func(key *dal.Key) *firestore.DocumentRef
-	create func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error)
-}
+//type inserter struct {
+//	client      *firestore.Client
+//	keyToDocRef keyToDocRefFunc
+//	create      func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error)
+//}
+//
+//func newInserter(db Database) inserter {
+//	return inserter{
+//		client:      db.client,
+//		create:      create,
+//		keyToDocRef: keyToDocRef,
+//	}
+//}
 
-func newInserter(dtb database) inserter {
-	return inserter{
-		doc:    dtb.doc,
-		create: create,
-	}
-}
-
-func (i inserter) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
+func (db Database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
 	options := dal.NewInsertOptions(opts...)
 	generateID := options.IDGenerator()
 	if generateID != nil {
@@ -27,16 +29,16 @@ func (i inserter) Insert(ctx context.Context, record dal.Record, opts ...dal.Ins
 			return err
 		}
 	}
-	_, err := i.insert(ctx, record)
+	_, err := db.insert(ctx, record)
 	return err
 }
 
-func (i inserter) insert(ctx context.Context, record dal.Record) (*firestore.WriteResult, error) {
+func (db Database) insert(ctx context.Context, record dal.Record) (*firestore.WriteResult, error) {
 	key := record.Key()
-	docRef := i.doc(key)
+	docRef := keyToDocRef(key, db.client)
 	if docRef != nil {
 		log.Println("inserting document:", docRef.Path)
 	}
 	data := record.Data()
-	return i.create(ctx, docRef, data)
+	return create(ctx, docRef, data)
 }

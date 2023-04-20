@@ -7,34 +7,34 @@ import (
 	"github.com/dal-go/dalgo/dal"
 )
 
-type updater struct {
-	dtb *database
-}
+//type updater struct {
+//	db *Database
+//}
+//
+//func newUpdater(db *Database) updater {
+//	return updater{
+//		db: db,
+//	}
+//}
 
-func newUpdater(dtb *database) updater {
-	return updater{
-		dtb: dtb,
-	}
-}
-
-func (u updater) Update(
+func (db Database) Update(
 	ctx context.Context,
 	key *dal.Key,
 	update []dal.Update,
 	preconditions ...dal.Precondition,
 ) error {
-	return u.dtb.RunReadwriteTransaction(ctx, func(ctx context.Context, d dal.ReadwriteTransaction) error {
+	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, d dal.ReadwriteTransaction) error {
 		return d.Update(ctx, key, update, preconditions...)
 	})
 }
 
-func (u updater) UpdateMulti(
+func (db Database) UpdateMulti(
 	ctx context.Context,
 	keys []*dal.Key,
 	updates []dal.Update,
 	preconditions ...dal.Precondition,
 ) error {
-	return u.dtb.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
+	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
 		return tx.UpdateMulti(ctx, keys, updates, preconditions...)
 	})
 }
@@ -45,7 +45,7 @@ func (t transaction) Update(
 	updates []dal.Update,
 	preconditions ...dal.Precondition,
 ) error {
-	dr := t.dtb.doc(key)
+	dr := keyToDocRef(key, t.db.client)
 	fsUpdates := make([]firestore.Update, len(updates))
 	for i, u := range updates {
 		fsUpdates[i] = getFirestoreUpdate(u)
@@ -62,7 +62,7 @@ func (t transaction) UpdateMulti(
 ) error {
 	fsPreconditions := getUpdatePreconditions(preconditions)
 	for _, key := range keys {
-		dr := t.dtb.doc(key)
+		dr := keyToDocRef(key, t.db.client)
 		fsUpdates := make([]firestore.Update, len(updates))
 		for i, u := range updates {
 			fsUpdates[i] = getFirestoreUpdate(u)
