@@ -36,13 +36,22 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 	}
 	k := dal.NewKeyWithID(from.Name, doc.Ref.ID)
 	data := record.Data()
-	if rd, ok := data.(dal.RecordData); ok {
-		data = rd.DTO()
+	rd, isRecordData := data.(dal.RecordData)
+	if isRecordData {
+		if data = rd.DTO(); data == nil {
+			return record, fmt.Errorf("RecordData.DTO() returned nil")
+		}
 	}
-	if err = doc.DataTo(data); err != nil {
-		return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)
+	if data != nil {
+		if err = doc.DataTo(data); err != nil {
+			return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)
+		}
 	}
-	record = dal.NewRecordWithData(k, record.Data())
+	if isRecordData {
+		record = dal.NewRecordWithData(k, rd)
+	} else {
+		record = dal.NewRecordWithData(k, data)
+	}
 	d.i++
 	return record, err
 }
