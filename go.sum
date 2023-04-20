@@ -23,6 +23,8 @@ github.com/cncf/xds/go v0.0.0-20210922020428-25de7278fc84/go.mod h1:eXthEFrGJvWH
 github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/dal-go/dalgo v0.2.19 h1:5TuYl8oBGgh65Pn/xoOzIIn/v/zk9W8ItQQeYID0MmA=
 github.com/dal-go/dalgo v0.2.19/go.mod h1:b0U+y2xjE5xY+HJ+vAt1DDcJe32N98tbRWDp5tPTwIc=
+github.com/dal-go/dalgo v0.2.20 h1:vBOoPRJqcK4sWPh9PEcU8qqa86g0i2NfRA6gS5DrfnU=
+github.com/dal-go/dalgo v0.2.20/go.mod h1:b0U+y2xjE5xY+HJ+vAt1DDcJe32N98tbRWDp5tPTwIc=
 github.com/dal-go/dalgo-end2end-tests v0.0.13 h1:j6EvE/4CxJ9qXE6wDFxhKIWDKVpGSm5adYdKDNESNU0=
 github.com/dal-go/dalgo-end2end-tests v0.0.13/go.mod h1:M8QDzcFqzXtCLEhNhRDE8CYUXPIFGR13ykGVux5E7tI=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
