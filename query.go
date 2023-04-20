@@ -15,11 +15,15 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 	if startFrom := q.StartFrom(); startFrom != "" {
 		query.StartAt(startFrom)
 	}
-	if query, err = applyWhere(q.Where(), query); err != nil {
-		return
+	if where := q.Where(); where != nil {
+		if query, err = applyWhere(q.Where(), query); err != nil {
+			return
+		}
 	}
-	if query, err = applyOrderBy(q.OrderBy(), query); err != nil {
-		return
+	if orderBy := q.OrderBy(); orderBy != nil {
+		if query, err = applyOrderBy(q.OrderBy(), query); err != nil {
+			return
+		}
 	}
 	return query.Documents(c), err
 }
