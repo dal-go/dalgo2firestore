@@ -19,13 +19,31 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 	if startFrom := q.StartFrom(); startFrom != "" {
 		query.StartAt(startFrom)
 	}
-	if query, err = dalWhereToFirestoreWhere(q.Where(), query); err != nil {
+	if query, err = applyWhere(q.Where(), query); err != nil {
+		return
+	}
+	if query, err = applyOrderBy(q.OrderBy(), query); err != nil {
 		return
 	}
 	return query.Documents(c), err
 }
 
-func dalWhereToFirestoreWhere(where dal.Condition, q firestore.Query) (firestore.Query, error) {
+func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Query, error) {
+	for _, o := range orderBy {
+		expression := o.String()
+		if o.Descending() {
+			expression = "-" + expression
+		}
+		if o.Descending() {
+			q = q.OrderBy(expression, firestore.Desc)
+		} else {
+			q = q.OrderBy(expression, firestore.Asc)
+		}
+	}
+	return q, nil
+}
+
+func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error) {
 	var applyComparison = func(comparison dal.Comparison) error {
 		switch left := comparison.Left.(type) {
 		case dal.FieldRef:
