@@ -51,8 +51,9 @@ func (d *firestoreReader) Cursor() (string, error) {
 	return "", dal.ErrNotImplementedYet
 }
 
-func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Query) (reader dal.Reader, err error) {
+func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Query) (dal.Reader, error) {
+	var err error
 	r := new(firestoreReader)
 	r.docIterator, err = dalQuery2firestoreIterator(c, query, client)
-	return reader, err
+	return r, err
 }
