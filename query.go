@@ -33,10 +33,7 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 
 func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Query, error) {
 	for _, o := range orderBy {
-		expression := o.String()
-		if o.Descending() {
-			expression = "-" + expression
-		}
+		expression := o.Expression().String()
 		if o.Descending() {
 			q = q.OrderBy(expression, firestore.Desc)
 		} else {
