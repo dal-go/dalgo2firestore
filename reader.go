@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"google.golang.org/api/iterator"
+	"reflect"
+	"strconv"
 )
 
 var _ dal.Reader = (*firestoreReader)(nil)
@@ -17,12 +19,16 @@ type firestoreReader struct {
 	docIterator *firestore.DocumentIterator
 }
 
+func (d *firestoreReader) Close() error {
+	return nil
+}
+
 func (d *firestoreReader) Next() (record dal.Record, err error) {
 	if limit := d.query.Limit(); limit > 0 && d.i >= limit {
 		return nil, dal.ErrNoMoreRecords
 	}
-	from := d.query.From()
 	if into := d.query.Into(); into == nil {
+		from := d.query.From()
 		record = dal.NewRecordWithIncompleteKey(from.Name, d.query.IDKind(), nil)
 	} else {
 		record = into()
@@ -34,7 +40,6 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 		}
 		return record, err
 	}
-	k := dal.NewKeyWithID(from.Name, doc.Ref.ID)
 	data := record.Data()
 	rd, isRecordData := data.(dal.RecordData)
 	if isRecordData {
@@ -47,11 +52,8 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 			return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)
 		}
 	}
-	if isRecordData {
-		record = dal.NewRecordWithData(k, rd)
-	} else {
-		record = dal.NewRecordWithData(k, data)
-	}
+	k := record.Key()
+	k.ID, err = idFromFirestoreDocRef(doc.Ref, k.IDKind)
 	d.i++
 	return record, err
 }
@@ -69,4 +71,35 @@ func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Q
 	}
 	reader.docIterator, err = dalQuery2firestoreIterator(c, query, client)
 	return reader, err
+}
+
+func idFromFirestoreDocRef(key *firestore.DocumentRef, idKind reflect.Kind) (id any, err error) {
+	//if key.Incomplete() {
+	//	return nil, errors.New("datastore key is incomplete: neither key.Name nor key.ID is set")
+	//}
+	switch idKind {
+	case reflect.Invalid:
+		return nil, errors.New("id kind is 0 e.g. 'reflect.Invalid'")
+	case reflect.String:
+		return key.ID, nil
+	default:
+		var id int
+		if id, err = strconv.Atoi(key.ID); err != nil {
+			return nil, fmt.Errorf("failed to autoconvert key.Name to int: %w", err)
+		}
+		switch idKind {
+		case reflect.Int64:
+			return id, nil
+		case reflect.Int:
+			return int(id), nil
+		case reflect.Int32:
+			return int(id), nil
+		case reflect.Int16:
+			return int(id), nil
+		case reflect.Int8:
+			return int(id), nil
+		default:
+			return key, fmt.Errorf("unsupported id type: %T=%v", idKind, idKind)
+		}
+	}
 }
