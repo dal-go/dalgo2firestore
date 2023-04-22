@@ -156,5 +156,5 @@ func testEndToEnd(t *testing.T) {
 	}
 	db := dalgo2firestore.NewDatabase("test-db", client)
 
-	end2end.TestDalgoDB(t, db)
+	end2end.TestDalgoDB(t, db, nil, false)
 }
