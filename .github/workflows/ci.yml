@@ -34,7 +34,7 @@ jobs:
 #      - name: Setup Firebase tools
 #        run: sudo chmod +rx /usr/local/bin/firebase
 
-      - uses: strongo/go-ci-action@v1.0.1
+      - uses: strongo/go-ci-action@v1.0.5
         env:
           DALGO_E2E_PROJECT_ID: ${{ secrets.DALGO_E2E_PROJECT_ID }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/GOOGLE_APPLICATION_CREDENTIALS.json
