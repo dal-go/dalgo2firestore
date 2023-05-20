@@ -138,11 +138,11 @@ func testEndToEnd(t *testing.T) {
 	if err := os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080"); err != nil {
 		t.Fatalf("Failed to set env variable FIRESTORE_EMULATOR_HOST: %v", err)
 	}
-	firestoreProjectID := os.Getenv("DALGO_E2E_PROJECT_ID")
+	firestoreProjectID := os.Getenv("FIREBASE_PROJECT_ID")
 
 	if firestoreProjectID == "" {
 		firestoreProjectID = "dalgo"
-		//t.Fatalf("Environment variable DALGO_E2E_PROJECT_ID is not set")
+		//t.Fatalf("Environment variable FIREBASE_PROJECT_ID is not set")
 	}
 	log.Println("Firestore Project ID:", firestoreProjectID)
 	//log.Println("ENV: GOOGLE_APPLICATION_CREDENTIALS:", os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"))
