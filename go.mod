@@ -3,7 +3,7 @@ module github.com/dal-go/dalgo2firestore
 go 1.20
 
 require (
-	cloud.google.com/go/firestore v1.11.0
+	cloud.google.com/go/firestore v1.12.0
 	github.com/dal-go/dalgo v0.2.31
 	github.com/dal-go/dalgo-end2end-tests v0.0.23
 	github.com/pkg/errors v0.9.1
