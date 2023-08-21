@@ -40,11 +40,12 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 		}
 		return record, err
 	}
+	record.SetError(nil)
 	data := record.Data()
-	rd, isRecordData := data.(dal.RecordData)
-	if isRecordData {
-		if data = rd.DTO(); data == nil {
-			return record, fmt.Errorf("RecordData.DTO() returned nil")
+	rd, isDataWrapper := data.(dal.DataWrapper)
+	if isDataWrapper {
+		if data = rd.Data(); data == nil {
+			return record, fmt.Errorf("DataWrapper.Data() returned nil")
 		}
 	}
 	if data != nil {

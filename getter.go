@@ -53,6 +53,7 @@ func docSnapshotToRecord(
 		record.SetError(err)
 		return err
 	}
+	record.SetError(nil)
 	recData := record.Data()
 	err = dataTo(docSnapshot, recData)
 	if status.Code(err) == codes.NotFound {
