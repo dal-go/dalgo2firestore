@@ -11,9 +11,16 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 	if client == nil {
 		panic("client is a required parameter, got nil")
 	}
-	query := client.Collection(q.From().Name).Offset(q.Offset())
+
+	fromName := q.From().Name
+
+	query := client.Collection(fromName).Query
+
 	if limit := q.Limit(); limit > 0 {
 		query.Limit(limit)
+	}
+	if offset := q.Offset(); offset > 0 {
+		query.Offset(offset)
 	}
 	if startFrom := q.StartFrom(); startFrom != "" {
 		query.StartAt(startFrom)
