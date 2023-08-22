@@ -5,7 +5,7 @@ go 1.20
 require (
 	cloud.google.com/go/firestore v1.12.0
 	github.com/dal-go/dalgo v0.5.0
-	github.com/dal-go/dalgo-end2end-tests v0.0.25
+	github.com/dal-go/dalgo-end2end-tests v0.0.27
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.138.0
 	google.golang.org/grpc v1.57.0
