@@ -4,14 +4,14 @@ go 1.20
 
 require (
 	cloud.google.com/go/firestore v1.12.0
-	github.com/dal-go/dalgo v0.9.0
-	github.com/dal-go/dalgo-end2end-tests v0.0.30
+	github.com/dal-go/dalgo v0.10.0
+	github.com/dal-go/dalgo-end2end-tests v0.0.31
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.139.0
 	google.golang.org/grpc v1.58.0
 )
 
-//replace github.com/dal-go/dalgo => ../dalgo
+//replace github.com/dal-go/dalgo-end2end-tests => ../dalgo-end2end-tests
 
 require (
 	cloud.google.com/go v0.110.7 // indirect

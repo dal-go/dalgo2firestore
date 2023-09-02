@@ -51,3 +51,7 @@ func (db database) Upsert(ctx context.Context, record dal.Record) error {
 func (db database) keyToDocRef(key *dal.Key) *firestore.DocumentRef {
 	return keyToDocRef(key, db.client)
 }
+
+func (db database) Close() error {
+	return nil
+}

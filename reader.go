@@ -42,12 +42,21 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 	}
 	record.SetError(nil)
 	data := record.Data()
+<<<<<<< HEAD
 	rd, isDataWrapper := data.(dal.DataWrapper)
 	if isDataWrapper {
 		if data = rd.Data(); data == nil {
 			return record, fmt.Errorf("DataWrapper.Data() returned nil")
 		}
 	}
+=======
+	//rd, isRecordData := data.(dal.RecordData)
+	//if isRecordData {
+	//	if data = rd.DTO(); data == nil {
+	//		return record, fmt.Errorf("RecordData.DTO() returned nil")
+	//	}
+	//}
+>>>>>>> edbbd9e (fix(deps): works with latest dalgo)
 	if data != nil {
 		if err = doc.DataTo(data); err != nil {
 			return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)

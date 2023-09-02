@@ -56,7 +56,11 @@ func (t transaction) Insert(ctx context.Context, record dal.Record, opts ...dal.
 		key.ID = idGenerator(ctx, record)
 	}
 	dr := t.db.keyToDocRef(key)
+<<<<<<< HEAD
 	record.SetError(nil) // Mark record as not having an error
+=======
+	record.SetError(nil)
+>>>>>>> edbbd9e (fix(deps): works with latest dalgo)
 	data := record.Data()
 	return t.tx.Create(dr, data)
 }
@@ -108,7 +112,11 @@ func (t transaction) GetMulti(ctx context.Context, records []dal.Record) error {
 func (t transaction) SetMulti(ctx context.Context, records []dal.Record) error {
 	for _, record := range records { // TODO: can we do this in parallel?
 		doc := t.db.keyToDocRef(record.Key())
+<<<<<<< HEAD
 		record.SetError(nil) // Mark record as not having an error
+=======
+		record.SetError(nil)
+>>>>>>> edbbd9e (fix(deps): works with latest dalgo)
 		_, err := doc.Set(ctx, record.Data())
 		if err != nil {
 			record.SetError(err)
