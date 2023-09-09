@@ -69,23 +69,7 @@ func docSnapshotToRecord(
 }
 
 func (db database) GetMulti(ctx context.Context, records []dal.Record) error {
-	docRefs := make([]*firestore.DocumentRef, len(records))
-	for i, rec := range records {
-		key := rec.Key()
-		docRefs[i] = db.keyToDocRef(key)
-	}
-	docSnapshots, err := db.client.GetAll(ctx, docRefs)
-	if err != nil {
-		return err
-	}
-	allErrors := make([]error, 0, len(records))
-	for i, rec := range records {
-		if err = docSnapshotToRecord(nil, docSnapshots[i], rec, dataTo); err != nil && !dal.IsNotFound(err) {
-			allErrors = append(allErrors, err)
-		}
-	}
-	if len(allErrors) > 0 {
-		return errors.Wrapf(allErrors[0], "failed to marshal data for %v records out of %v", len(allErrors), len(records))
-	}
-	return nil
+	return db.RunReadonlyTransaction(ctx, func(ctx context.Context, tx dal.ReadTransaction) error {
+		return tx.GetMulti(ctx, records)
+	})
 }
