@@ -40,6 +40,10 @@ type transaction struct {
 	dal.QueryExecutor
 }
 
+func (t transaction) Close(ctx context.Context) error {
+	panic("TODO: implement or remove me")
+}
+
 func (t transaction) ID() string {
 	return ""
 }
