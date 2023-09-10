@@ -6,6 +6,7 @@ import (
 	"context"
 	end2end "github.com/dal-go/dalgo-end2end-tests"
 	"github.com/dal-go/dalgo2firestore"
+	"github.com/pkg/errors"
 	"io"
 	"log"
 	"os"
@@ -19,7 +20,10 @@ import (
 func TestEndToEnd(t *testing.T) {
 	log.Println("TestEndToEnd() started...")
 	cmd, cmdStdout, cmdStdErr := startFirebaseEmulators(t)
-	defer terminateFirebaseEmulators(t, cmd)
+	defer func() {
+		terminateFirebaseEmulators(t, cmd)
+		cmd = nil
+	}()
 	emulatorExited := false
 	go handleCommandStderr(t, cmdStdErr, &emulatorExited)
 	select {
@@ -59,8 +63,12 @@ func handleCommandStderr(t *testing.T, stderr *bytes.Buffer, emulatorExited *boo
 }
 
 func terminateFirebaseEmulators(t *testing.T, cmd *exec.Cmd) {
+	if cmd == nil {
+		return
+	}
+	// TODO(help-wanted): Consider cmd.Cancel() ?
 	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
-		if err != os.ErrProcessDone {
+		if errors.Is(err, os.ErrProcessDone) {
 			t.Error("Failed to terminate Firebase emulator:", err)
 			return
 		}
@@ -109,7 +117,7 @@ func waitForEmulatorReadiness(t *testing.T, cmdOutput *bytes.Buffer, emulatorExi
 			if strings.Contains(line, "All emulators ready!") {
 				//t.Log("Firebase emulators are ready.")
 				emulatorsReady <- true
-				close(emulatorsReady)
+				//close(emulatorsReady)
 			}
 		}
 	}()

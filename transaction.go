@@ -40,6 +40,10 @@ type transaction struct {
 	dal.QueryExecutor
 }
 
+func (t transaction) Close(ctx context.Context) error {
+	panic("TODO: implement or remove me")
+}
+
 func (t transaction) ID() string {
 	return ""
 }
@@ -98,7 +102,7 @@ func (t transaction) GetMulti(ctx context.Context, records []dal.Record) error {
 		err = docSnapshotToRecord(nil, d, records[i], func(ds *firestore.DocumentSnapshot, p interface{}) error {
 			return ds.DataTo(p)
 		})
-		if err != nil {
+		if err != nil && !dal.IsNotFound(err) {
 			return err
 		}
 	}

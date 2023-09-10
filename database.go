@@ -7,7 +7,7 @@ import (
 )
 
 // NewDatabase creates new instance of dalgo interface to Firestore
-func NewDatabase(id string, client *firestore.Client) (db dal.Database) {
+func NewDatabase(id string, client *firestore.Client) (db dal.DB) {
 	if id == "" {
 		panic("id is a required field, got empty string")
 	}
@@ -24,8 +24,8 @@ func NewDatabase(id string, client *firestore.Client) (db dal.Database) {
 	}
 }
 
-var _ dal.Database = database{}
-var _ dal.Database = (*database)(nil)
+var _ dal.DB = database{}
+var _ dal.DB = (*database)(nil)
 
 // database implements dal.Database
 type database struct {
@@ -38,11 +38,11 @@ func (db database) ID() string {
 	return db.id
 }
 
-func (db database) Client() dal.ClientInfo {
-	return dal.NewClientInfo("firestore", "v1.9.0")
+func (db database) Adapter() dal.Adapter {
+	return dal.NewAdapter("firestore", "v1.9.0")
 }
 
-var _ dal.Database = (*database)(nil)
+var _ dal.DB = (*database)(nil)
 
 func (db database) Upsert(ctx context.Context, record dal.Record) error {
 	panic("implement me")
