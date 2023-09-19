@@ -3,11 +3,11 @@ module github.com/dal-go/dalgo2firestore
 go 1.20
 
 require (
-	cloud.google.com/go/firestore v1.12.0
-	github.com/dal-go/dalgo v0.10.2
+	cloud.google.com/go/firestore v1.13.0
+	github.com/dal-go/dalgo v0.12.0
 	github.com/dal-go/dalgo-end2end-tests v0.0.33
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.141.0
+	google.golang.org/api v0.142.0
 	google.golang.org/grpc v1.58.1
 )
 
@@ -42,7 +42,7 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230815205213-6bfd019c3878 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230815205213-6bfd019c3878 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230911183012-2d3300fd4832 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230913181813-007df8e322eb // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
