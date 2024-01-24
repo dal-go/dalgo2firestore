@@ -10,7 +10,7 @@ require (
 	github.com/dal-go/dalgo-end2end-tests v0.0.35
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.157.0
-	google.golang.org/grpc v1.60.1
+	google.golang.org/grpc v1.61.0
 )
 
 //replace github.com/dal-go/dalgo => ../dalgo
