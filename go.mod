@@ -9,7 +9,7 @@ require (
 	github.com/dal-go/dalgo v0.12.1
 	github.com/dal-go/dalgo-end2end-tests v0.0.36
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.168.0
+	google.golang.org/api v0.169.0
 	google.golang.org/grpc v1.62.1
 )
 
