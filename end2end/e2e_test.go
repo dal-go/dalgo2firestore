@@ -103,13 +103,13 @@ func waitForEmulatorReadiness(t *testing.T, cmdOutput *bytes.Buffer, emulatorExi
 	go func() {
 		t.Log("Awaiting for Firebase emulator to be ready...")
 		for i := 1; true; i++ {
-			if *emulatorExited {
-				return
-			}
 			line, err := cmdOutput.ReadString('\n')
+			if line != "" {
+				t.Log("Firebase emulator STDOUT:", line)
+			}
 			if err != nil {
 				if err == io.EOF {
-					time.Sleep(10 * time.Millisecond)
+					time.Sleep(5 * time.Millisecond)
 					continue
 				}
 				t.Errorf("Failed to read: %v", err)
@@ -119,6 +119,9 @@ func waitForEmulatorReadiness(t *testing.T, cmdOutput *bytes.Buffer, emulatorExi
 				//t.Log("Firebase emulators are ready.")
 				emulatorsReady <- true
 				//close(emulatorsReady)
+			}
+			if *emulatorExited {
+				return
 			}
 		}
 	}()
