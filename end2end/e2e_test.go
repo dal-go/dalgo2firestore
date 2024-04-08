@@ -79,6 +79,7 @@ func terminateFirebaseEmulators(t *testing.T, cmd *exec.Cmd) {
 func startFirebaseEmulators(t *testing.T) (cmd *exec.Cmd, stdout, stderr *bytes.Buffer) {
 	cmd = exec.Command("firebase",
 		"emulators:start",
+		"--debug",
 		"-c", "./firebase/firebase.json",
 		"--only", "firestore",
 		"--project", "dalgo",
