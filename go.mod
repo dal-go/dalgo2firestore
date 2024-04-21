@@ -2,7 +2,7 @@ module github.com/dal-go/dalgo2firestore
 
 go 1.21
 
-toolchain go1.21.4
+toolchain go1.22.2
 
 require (
 	cloud.google.com/go/firestore v1.15.0
