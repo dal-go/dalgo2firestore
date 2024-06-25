@@ -9,7 +9,7 @@ require (
 	github.com/dal-go/dalgo v0.12.1
 	github.com/dal-go/dalgo-end2end-tests v0.0.36
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.185.0
+	google.golang.org/api v0.186.0
 	google.golang.org/grpc v1.64.0
 )
 
@@ -18,7 +18,7 @@ require (
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
-	cloud.google.com/go/auth v0.5.1 // indirect
+	cloud.google.com/go/auth v0.6.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
 	cloud.google.com/go/compute v1.27.0 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
@@ -32,7 +32,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
-	github.com/googleapis/gax-go/v2 v2.12.4 // indirect
+	github.com/googleapis/gax-go/v2 v2.12.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/strongo/random v0.0.1 // indirect
