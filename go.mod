@@ -2,14 +2,14 @@ module github.com/dal-go/dalgo2firestore
 
 go 1.21
 
-toolchain go1.22.6
+toolchain go1.23.0
 
 require (
 	cloud.google.com/go/firestore v1.16.0
 	github.com/dal-go/dalgo v0.12.1
 	github.com/dal-go/dalgo-end2end-tests v0.0.36
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.191.0
+	google.golang.org/api v0.192.0
 	google.golang.org/grpc v1.65.0
 )
 
@@ -18,7 +18,7 @@ require (
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
-	cloud.google.com/go/auth v0.7.3 // indirect
+	cloud.google.com/go/auth v0.8.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.3 // indirect
 	cloud.google.com/go/compute v1.27.4 // indirect
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
