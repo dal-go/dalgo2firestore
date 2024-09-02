@@ -133,20 +133,8 @@ func (t transaction) DeleteMulti(_ context.Context, keys []*dal.Key) error {
 }
 
 func (t transaction) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
-	options := dal.NewInsertOptions(opts...)
-	idGenerator := options.IDGenerator()
-	for _, record := range records {
-		key := record.Key()
-		if key.ID == nil {
-			key.ID = idGenerator(ctx, record)
-		}
-		dr := t.db.keyToDocRef(key)
-		record.SetError(nil) // Mark record as not having an error
-		data := record.Data()
-		return t.tx.Create(dr, data)
-	}
 	_, err = insertMulti(ctx, t.db, records, func(ctx context.Context, docRef *firestore.DocumentRef, data any) (result *firestore.WriteResult, err error) {
 		return nil, t.tx.Create(docRef, data)
-	})
+	}, opts...)
 	return
 }

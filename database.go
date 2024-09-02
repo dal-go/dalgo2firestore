@@ -44,10 +44,27 @@ func (db database) Adapter() dal.Adapter {
 
 var _ dal.DB = (*database)(nil)
 
-func (db database) Upsert(ctx context.Context, record dal.Record) error {
+func (db database) Upsert(_ context.Context, _ dal.Record) error {
 	panic("implement me")
 }
 
 func (db database) keyToDocRef(key *dal.Key) *firestore.DocumentRef {
 	return keyToDocRef(key, db.client)
+}
+
+func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
+	options := dal.NewInsertOptions(opts...)
+	generateID := options.IDGenerator()
+	if generateID != nil {
+		if err := generateID(ctx, record); err != nil {
+			return err
+		}
+	}
+	_, err := insert(ctx, db, record, createNonTransactional)
+	return err
+}
+
+func (db database) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
+	_, err = insertMulti(ctx, db, records, createNonTransactional, opts...)
+	return err
 }
