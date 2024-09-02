@@ -13,8 +13,18 @@ func insert(ctx context.Context, db database, record dal.Record, create createFu
 	docRef := keyToDocRef(key, db.client)
 	if docRef != nil {
 		log.Println("inserting document:", docRef.Path)
+	} else {
+		log.Println("inserting document: docRef=nil")
 	}
+	record.SetError(dal.NoError)
 	data := record.Data()
+	if validatable, ok := data.(interface{ Validate() error }); ok {
+		if err = validatable.Validate(); err != nil {
+			record.SetError(err)
+			return
+		}
+	}
+	record.SetError(dal.NoError)
 	if result, err = create(ctx, docRef, data); err != nil {
 		record.SetError(fmt.Errorf("failed to insert record: %w", err))
 		return
