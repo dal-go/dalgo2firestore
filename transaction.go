@@ -40,7 +40,7 @@ type transaction struct {
 	dal.QueryExecutor
 }
 
-func (t transaction) Close(ctx context.Context) error {
+func (t transaction) Close(_ context.Context) error {
 	panic("TODO: implement or remove me")
 }
 
@@ -79,17 +79,17 @@ func (t transaction) Get(_ context.Context, record dal.Record) error {
 	})
 }
 
-func (t transaction) Set(ctx context.Context, record dal.Record) error {
+func (t transaction) Set(_ context.Context, record dal.Record) error {
 	dr := t.db.keyToDocRef(record.Key())
 	return t.tx.Set(dr, record.Data())
 }
 
-func (t transaction) Delete(ctx context.Context, key *dal.Key) error {
+func (t transaction) Delete(_ context.Context, key *dal.Key) error {
 	dr := t.db.keyToDocRef(key)
 	return t.tx.Delete(dr)
 }
 
-func (t transaction) GetMulti(ctx context.Context, records []dal.Record) error {
+func (t transaction) GetMulti(_ context.Context, records []dal.Record) error {
 	dr := make([]*firestore.DocumentRef, len(records))
 	for i, r := range records {
 		dr[i] = t.db.keyToDocRef(r.Key())
@@ -126,8 +126,27 @@ func (t transaction) DeleteMulti(_ context.Context, keys []*dal.Key) error {
 	for _, k := range keys {
 		dr := t.db.keyToDocRef(k)
 		if err := t.tx.Delete(dr); err != nil {
-			return fmt.Errorf("failed to delete record: %w", err)
+			return fmt.Errorf("failed to deleteByDocRef record: %w", err)
 		}
 	}
 	return nil
+}
+
+func (t transaction) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
+	options := dal.NewInsertOptions(opts...)
+	idGenerator := options.IDGenerator()
+	for _, record := range records {
+		key := record.Key()
+		if key.ID == nil {
+			key.ID = idGenerator(ctx, record)
+		}
+		dr := t.db.keyToDocRef(key)
+		record.SetError(nil) // Mark record as not having an error
+		data := record.Data()
+		return t.tx.Create(dr, data)
+	}
+	_, err = insertMulti(ctx, t.db, records, func(ctx context.Context, docRef *firestore.DocumentRef, data any) (result *firestore.WriteResult, err error) {
+		return nil, t.tx.Create(docRef, data)
+	})
+	return
 }

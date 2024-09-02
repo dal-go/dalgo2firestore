@@ -8,7 +8,7 @@ import (
 //type deleter struct {
 //	client      *firestore.Client
 //	keyToDocRef keyToDocRefFunc
-//	delete      func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.WriteResult, err error)
+//	deleteByDocRef      func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.WriteResult, err error)
 //	bulkWriter       func(ctx context.Context) *firestore.BulkWriter
 //}
 
@@ -16,7 +16,7 @@ import (
 //	return deleter{
 //		client:      dtb.client,
 //		keyToDocRef: keyToDocRef,
-//		delete:      delete,
+//		deleteByDocRef:      deleteByDocRef,
 //		bulkWriter: func(c context.Context) *firestore.BulkWriter {
 //
 //		},
@@ -26,7 +26,7 @@ import (
 // Delete deletes a record from the database.
 func (db database) Delete(ctx context.Context, key *dal.Key) error {
 	docRef := db.keyToDocRef(key)
-	_, err := delete(ctx, docRef)
+	_, err := deleteByDocRef(ctx, docRef)
 	return err
 }
 
