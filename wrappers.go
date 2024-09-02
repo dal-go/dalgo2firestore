@@ -5,19 +5,21 @@ import (
 	"context"
 )
 
-var delete = func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.WriteResult, err error) {
+var deleteByDocRef = func(ctx context.Context, docRef *firestore.DocumentRef) (result *firestore.WriteResult, err error) {
 	return docRef.Delete(ctx)
 }
 
-var create = func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error) {
+type createFunc func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (result *firestore.WriteResult, err error)
+
+var createNonTransactional = func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (result *firestore.WriteResult, err error) {
 	return docRef.Create(ctx, data)
 }
 
-var set = func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error) {
+var set = func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (result *firestore.WriteResult, err error) {
 	return docRef.Set(ctx, data)
 }
 
-var get = func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.DocumentSnapshot, err error) {
+var get = func(ctx context.Context, docRef *firestore.DocumentRef) (result *firestore.DocumentSnapshot, err error) {
 	return docRef.Get(ctx)
 }
 
