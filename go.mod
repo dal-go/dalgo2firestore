@@ -7,8 +7,8 @@ require (
 	github.com/dal-go/dalgo v0.13.2
 	github.com/dal-go/dalgo-end2end-tests v0.0.40
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.197.0
-	google.golang.org/grpc v1.66.2
+	google.golang.org/api v0.198.0
+	google.golang.org/grpc v1.67.0
 )
 
 //replace github.com/dal-go/dalgo => ../dalgo
@@ -16,9 +16,9 @@ require (
 
 require (
 	cloud.google.com/go v0.115.1 // indirect
-	cloud.google.com/go/auth v0.9.3 // indirect
+	cloud.google.com/go/auth v0.9.4 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
-	cloud.google.com/go/compute/metadata v0.5.0 // indirect
+	cloud.google.com/go/compute/metadata v0.5.1 // indirect
 	cloud.google.com/go/longrunning v0.6.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
