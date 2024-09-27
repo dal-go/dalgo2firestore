@@ -5,7 +5,7 @@ go 1.22
 require (
 	cloud.google.com/go/firestore v1.17.0
 	github.com/dal-go/dalgo v0.14.0
-	github.com/dal-go/dalgo-end2end-tests v0.0.40
+	github.com/dal-go/dalgo-end2end-tests v0.0.41
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.199.0
 	google.golang.org/grpc v1.67.0
