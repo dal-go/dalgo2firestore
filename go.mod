@@ -8,7 +8,7 @@ require (
 	github.com/dal-go/dalgo-end2end-tests v0.0.41
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.199.0
-	google.golang.org/grpc v1.67.0
+	google.golang.org/grpc v1.67.1
 )
 
 //replace github.com/dal-go/dalgo => ../dalgo
