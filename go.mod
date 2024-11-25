@@ -6,8 +6,8 @@ toolchain go1.23.3
 
 require (
 	cloud.google.com/go/firestore v1.17.0
-	github.com/dal-go/dalgo v0.14.0
-	github.com/dal-go/dalgo-end2end-tests v0.0.41
+	github.com/dal-go/dalgo v0.14.1
+	github.com/dal-go/dalgo-end2end-tests v0.0.42
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.209.0
 	google.golang.org/grpc v1.68.0
@@ -31,7 +31,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/strongo/random v0.0.1 // indirect
 	github.com/strongo/validation v0.0.7 // indirect
 	go.opencensus.io v0.24.0 // indirect
