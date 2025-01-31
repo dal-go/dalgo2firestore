@@ -12,9 +12,9 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		panic("client is a required parameter, got nil")
 	}
 
-	fromName := q.From().Name()
+	collectionPath := q.From().Path()
 
-	query := client.Collection(fromName).Query
+	query := client.Collection(collectionPath).Query
 
 	if limit := q.Limit(); limit > 0 {
 		query.Limit(limit)
