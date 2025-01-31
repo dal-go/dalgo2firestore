@@ -60,6 +60,16 @@ func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error)
 			default:
 				return fmt.Errorf("only FieldRef are supported as left operand, got: %T", right)
 			}
+		case dal.Constant:
+			switch right := comparison.Right.(type) {
+			case dal.FieldRef:
+				switch comparison.Operator {
+				case dal.In:
+					q = q.Where(right.Name(), "array-contains", left.Value)
+				default:
+					return fmt.Errorf("only IN operator is supported for constant as left operand, got: %v", comparison.Operator)
+				}
+			}
 		default:
 			return fmt.Errorf("only FieldRef are supported as left operand, got: %T", left)
 		}
