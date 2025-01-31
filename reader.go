@@ -29,7 +29,7 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 	}
 	if into := d.query.Into(); into == nil {
 		from := d.query.From()
-		record = dal.NewRecordWithIncompleteKey(from.Name, d.query.IDKind(), nil)
+		record = dal.NewRecordWithIncompleteKey(from.Name(), d.query.IDKind(), nil)
 	} else {
 		record = into()
 	}

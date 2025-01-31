@@ -12,7 +12,7 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		panic("client is a required parameter, got nil")
 	}
 
-	fromName := q.From().Name
+	fromName := q.From().Name()
 
 	query := client.Collection(fromName).Query
 
@@ -56,7 +56,7 @@ func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error)
 		case dal.FieldRef:
 			switch right := comparison.Right.(type) {
 			case dal.Constant:
-				q = q.Where(left.Name, string(comparison.Operator), right.Value)
+				q = q.Where(left.Name(), string(comparison.Operator), right.Value)
 			default:
 				return fmt.Errorf("only FieldRef are supported as left operand, got: %T", right)
 			}
