@@ -6,7 +6,7 @@ toolchain go1.23.5
 
 require (
 	cloud.google.com/go/firestore v1.18.0
-	github.com/dal-go/dalgo v0.16.0
+	github.com/dal-go/dalgo v0.16.1
 	github.com/dal-go/dalgo-end2end-tests v0.0.44
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.219.0
