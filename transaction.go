@@ -75,9 +75,7 @@ func (t transaction) Get(_ context.Context, record dal.Record) error {
 	key := record.Key()
 	docRef := t.db.keyToDocRef(key)
 	docSnapshot, err := t.tx.Get(docRef)
-	return docSnapshotToRecord(err, docSnapshot, record, func(ds *firestore.DocumentSnapshot, p interface{}) error {
-		return ds.DataTo(p)
-	})
+	return docSnapshotToRecord(err, docSnapshot, record, dataTo)
 }
 
 func (t transaction) Set(_ context.Context, record dal.Record) error {
@@ -101,10 +99,7 @@ func (t transaction) GetMulti(_ context.Context, records []dal.Record) error {
 	}
 	var errs []error
 	for i, d := range ds {
-		err = docSnapshotToRecord(nil, d, records[i], func(ds *firestore.DocumentSnapshot, p interface{}) error {
-			return ds.DataTo(p)
-		})
-		if err != nil {
+		if err = docSnapshotToRecord(nil, d, records[i], dataTo); err != nil {
 			errs = append(errs, err)
 		}
 	}

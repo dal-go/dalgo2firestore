@@ -53,18 +53,23 @@ func docSnapshotToRecord(
 		record.SetError(err)
 		return err
 	}
-	record.SetError(nil)
+	if !docSnapshot.Exists() {
+		key := record.Key()
+		err = dal.NewErrNotFoundByKey(key, err)
+		record.SetError(err)
+		return nil // This is for GetMulti() to continue processing other records
+	}
 	recData := record.Data()
-	err = dataTo(docSnapshot, recData)
-	if status.Code(err) == codes.NotFound {
-		err = dal.NewErrNotFoundByKey(record.Key(), err)
+	if err = dataTo(docSnapshot, recData); err != nil {
+		if status.Code(err) == codes.NotFound {
+			key := record.Key()
+			err = dal.NewErrNotFoundByKey(key, err)
+		}
+		err = errors.Wrapf(err, "failed to marshal record data into a target of type %T", recData)
 		record.SetError(err)
 		return err
 	}
-	if err != nil {
-		err = errors.Wrapf(err, "failed to marshal record data into a target of type %T", recData)
-	}
-	record.SetError(err)
+	record.SetError(nil) // Mark record as not having an error
 	return nil
 }
 
