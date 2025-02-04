@@ -59,6 +59,7 @@ func docSnapshotToRecord(
 		record.SetError(err)
 		return nil // This is for GetMulti() to continue processing other records
 	}
+	record.SetError(nil) // !Important - we need to set error to nil before accessing record.Data()
 	recData := record.Data()
 	if err = dataTo(docSnapshot, recData); err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -69,7 +70,6 @@ func docSnapshotToRecord(
 		record.SetError(err)
 		return err
 	}
-	record.SetError(nil) // Mark record as not having an error
 	return nil
 }
 
