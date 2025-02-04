@@ -3,6 +3,7 @@ package dalgo2firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 )
@@ -96,15 +97,19 @@ func (t transaction) GetMulti(_ context.Context, records []dal.Record) error {
 	}
 	ds, err := t.tx.GetAll(dr)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get %d records by keys: %w", len(records), err)
 	}
+	var errs []error
 	for i, d := range ds {
 		err = docSnapshotToRecord(nil, d, records[i], func(ds *firestore.DocumentSnapshot, p interface{}) error {
 			return ds.DataTo(p)
 		})
-		if err != nil && !dal.IsNotFound(err) {
-			return err
+		if err != nil {
+			errs = append(errs, err)
 		}
+	}
+	if len(errs) > 0 {
+		return fmt.Errorf("failed to get %d out of %d records requested by keys: %w", len(errs), len(records), errors.Join(errs...))
 	}
 	return nil
 }
