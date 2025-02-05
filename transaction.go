@@ -28,7 +28,7 @@ func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker
 		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
 	}, firestoreTxOptions...)
 	if Debugf != nil {
-		Debugf(ctx, "RunReadwriteTransaction() completed in %v, err: %v", started.Sub(time.Now()), err)
+		Debugf(ctx, "RunReadwriteTransaction() completed in %v, err: %v", time.Until(started), err)
 	}
 	return err
 }
