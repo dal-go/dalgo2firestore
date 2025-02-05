@@ -39,22 +39,22 @@ func (db database) UpdateMulti(
 	})
 }
 
-func (t transaction) Update(
+func (tx transaction) Update(
 	_ context.Context,
 	key *dal.Key,
 	updates []dal.Update,
 	preconditions ...dal.Precondition,
 ) error {
-	dr := keyToDocRef(key, t.db.client)
+	dr := keyToDocRef(key, tx.db.client)
 	fsUpdates := make([]firestore.Update, len(updates))
 	for i, u := range updates {
 		fsUpdates[i] = getFirestoreUpdate(u)
 	}
 	fsPreconditions := getUpdatePreconditions(preconditions)
-	return t.tx.Update(dr, fsUpdates, fsPreconditions...)
+	return tx.tx.Update(dr, fsUpdates, fsPreconditions...)
 }
 
-func (t transaction) UpdateMulti(
+func (tx transaction) UpdateMulti(
 	_ context.Context,
 	keys []*dal.Key,
 	updates []dal.Update,
@@ -62,12 +62,12 @@ func (t transaction) UpdateMulti(
 ) error {
 	fsPreconditions := getUpdatePreconditions(preconditions)
 	for _, key := range keys {
-		dr := keyToDocRef(key, t.db.client)
+		dr := keyToDocRef(key, tx.db.client)
 		fsUpdates := make([]firestore.Update, len(updates))
 		for i, u := range updates {
 			fsUpdates[i] = getFirestoreUpdate(u)
 		}
-		if err := t.tx.Update(dr, fsUpdates, fsPreconditions...); err != nil {
+		if err := tx.tx.Update(dr, fsUpdates, fsPreconditions...); err != nil {
 			keyPath := PathFromKey(key)
 			return fmt.Errorf("failed to update record with key: %v: %w", keyPath, err)
 		}

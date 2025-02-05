@@ -34,6 +34,9 @@ var dataTo = func(ds *firestore.DocumentSnapshot, p interface{}) error {
 }
 
 func (db database) Get(ctx context.Context, record dal.Record) error {
+	if Debugf != nil {
+		Debugf(ctx, "db.Get(%v)", record.Key())
+	}
 	key := record.Key()
 	docRef := db.keyToDocRef(key)
 	docSnapshot, err := get(ctx, docRef)
@@ -74,6 +77,7 @@ func docSnapshotToRecord(
 }
 
 func (db database) GetMulti(ctx context.Context, records []dal.Record) error {
+	logMultiRecords(ctx, "db.GetMulti", records)
 	return db.RunReadonlyTransaction(ctx, func(ctx context.Context, tx dal.ReadTransaction) error {
 		return tx.GetMulti(ctx, records)
 	})

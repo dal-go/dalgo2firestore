@@ -53,6 +53,9 @@ func (db database) keyToDocRef(key *dal.Key) *firestore.DocumentRef {
 }
 
 func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
+	if Debugf != nil {
+		Debugf(ctx, "db.Insert(key=%v)", record.Key())
+	}
 	options := dal.NewInsertOptions(opts...)
 	generateID := options.IDGenerator()
 	if generateID != nil {
@@ -65,6 +68,7 @@ func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.In
 }
 
 func (db database) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
+	logMultiRecords(ctx, "db.InsertMulti", records)
 	_, err = insertMulti(ctx, db, records, createNonTransactional, opts...)
 	return err
 }

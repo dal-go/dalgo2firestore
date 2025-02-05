@@ -27,6 +27,9 @@ func (db database) Set(ctx context.Context, record dal.Record) (err error) {
 	if record == nil {
 		panic("record is a required parameter, got nil")
 	}
+	if Debugf != nil {
+		Debugf(ctx, "db.Set(key=%s)", record.Key().String())
+	}
 	key := record.Key()
 	docRef := db.keyToDocRef(key)
 	if docRef == nil {
@@ -38,6 +41,7 @@ func (db database) Set(ctx context.Context, record dal.Record) (err error) {
 }
 
 func (db database) SetMulti(ctx context.Context, records []dal.Record) error {
+	logMultiRecords(ctx, "db.SetMulti", records)
 	batch := db.bulkWriter(ctx)
 	for _, record := range records {
 		key := record.Key()
