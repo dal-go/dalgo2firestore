@@ -15,11 +15,11 @@ var createNonTransactional = func(ctx context.Context, docRef *firestore.Documen
 	return docRef.Create(ctx, data)
 }
 
-var set = func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (result *firestore.WriteResult, err error) {
+var setFirestore = func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (result *firestore.WriteResult, err error) {
 	return docRef.Set(ctx, data)
 }
 
-var get = func(ctx context.Context, docRef *firestore.DocumentRef) (result *firestore.DocumentSnapshot, err error) {
+var getFirestore = func(ctx context.Context, docRef *firestore.DocumentRef) (result *firestore.DocumentSnapshot, err error) {
 	return docRef.Get(ctx)
 }
 

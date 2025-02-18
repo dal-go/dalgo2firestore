@@ -2,7 +2,7 @@ module github.com/dal-go/dalgo2firestore
 
 go 1.22.7
 
-toolchain go1.24.0
+toolchain go1.23.5
 
 require (
 	cloud.google.com/go/firestore v1.18.0
@@ -13,11 +13,12 @@ require (
 	google.golang.org/grpc v1.70.0
 )
 
-//replace github.com/dal-go/dalgo => ../dalgo
+replace github.com/dal-go/dalgo => ../dalgo
+
 //replace github.com/dal-go/dalgo-end2end-tests => ../dalgo-end2end-tests
 
 require (
-	cloud.google.com/go v0.118.1 // indirect
+	cloud.google.com/go v0.118.2 // indirect
 	cloud.google.com/go/auth v0.14.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
@@ -46,9 +47,9 @@ require (
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.10.0 // indirect
-	google.golang.org/genproto v0.0.0-20250127172529-29210b9bc287 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250127172529-29210b9bc287 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250207221924-e9438ea467c6 // indirect
+	google.golang.org/genproto v0.0.0-20250212204824-5a70512c5d8b // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250212204824-5a70512c5d8b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250212204824-5a70512c5d8b // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -73,7 +73,7 @@ func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal
 	if key.ID == nil {
 		key.ID = idGenerator(ctx, record)
 	}
-	dr := tx.db.keyToDocRef(key)
+	dr := keyToDocRef(key, tx.db.client)
 	record.SetError(nil) // Mark record as not having an error
 	data := record.Data()
 	return tx.tx.Create(dr, data)
@@ -83,45 +83,61 @@ func (tx transaction) Upsert(ctx context.Context, record dal.Record) error {
 	if Debugf != nil {
 		Debugf(ctx, "tx.Upsert(%v)", record.Key())
 	}
-	dr := tx.db.keyToDocRef(record.Key())
+	dr := keyToDocRef(record.Key(), tx.db.client)
 	return tx.tx.Set(dr, record.Data())
 }
 
 func (tx transaction) Get(ctx context.Context, record dal.Record) error {
+	return get(ctx, record, tx.db.client, func(_ context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error) {
+		return tx.tx.Get(dr)
+	})
+}
+
+func get(
+	ctx context.Context,
+	record dal.Record,
+	client *firestore.Client,
+	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
+) (err error) {
 	if Debugf != nil {
 		Debugf(ctx, "tx.Get(%v)", record.Key())
 	}
 	key := record.Key()
-	docRef := tx.db.keyToDocRef(key)
-	docSnapshot, err := tx.tx.Get(docRef)
-	return docSnapshotToRecord(err, docSnapshot, record, dataTo)
+	docRef := keyToDocRef(key, client)
+	var docSnapshot *firestore.DocumentSnapshot
+	if docSnapshot, err = getByDocRef(ctx, docRef); err == nil {
+		err = docSnapshotToRecord(err, docSnapshot, record, dataTo)
+	}
+	return
 }
 
 func (tx transaction) Set(ctx context.Context, record dal.Record) error {
 	if Debugf != nil {
 		Debugf(ctx, "tx.Set(%v)", record.Key())
 	}
-	dr := tx.db.keyToDocRef(record.Key())
-	return tx.tx.Set(dr, record.Data())
+	dr := keyToDocRef(record.Key(), tx.db.client)
+	err := tx.tx.Set(dr, record.Data())
+	return err
 }
 
 func (tx transaction) Delete(ctx context.Context, key *dal.Key) error {
 	if Debugf != nil {
 		Debugf(ctx, "tx.Delete(%v)", key)
 	}
-	dr := tx.db.keyToDocRef(key)
-	return tx.tx.Delete(dr)
+	dr := keyToDocRef(key, tx.db.client)
+	err := tx.tx.Delete(dr)
+	return err
 }
 
 func (tx transaction) GetMulti(ctx context.Context, records []dal.Record) error {
 	dr := make([]*firestore.DocumentRef, len(records))
 	for i, r := range records {
-		dr[i] = tx.db.keyToDocRef(r.Key())
+		dr[i] = keyToDocRef(r.Key(), tx.db.client)
 	}
 	logMultiRecords(ctx, "tx.GetMulti", records)
 	ds, err := tx.tx.GetAll(dr)
 	if err != nil {
-		return fmt.Errorf("failed to get %d records by keys: %w", len(records), err)
+		return fmt.Errorf("failed to getFirestore %d records by keys: %w", len(records), err)
 	}
 	var errs []error
 	for i, d := range ds {
@@ -130,7 +146,7 @@ func (tx transaction) GetMulti(ctx context.Context, records []dal.Record) error 
 		}
 	}
 	if len(errs) > 0 {
-		return fmt.Errorf("failed to get %d out of %d records requested by keys: %w", len(errs), len(records), errors.Join(errs...))
+		return fmt.Errorf("failed to getFirestore %d out of %d records requested by keys: %w", len(errs), len(records), errors.Join(errs...))
 	}
 	return nil
 }
@@ -138,7 +154,7 @@ func (tx transaction) GetMulti(ctx context.Context, records []dal.Record) error 
 func (tx transaction) SetMulti(ctx context.Context, records []dal.Record) error {
 	logMultiRecords(ctx, "SetMulti", records)
 	for _, record := range records { // TODO: can we do this in parallel?
-		doc := tx.db.keyToDocRef(record.Key())
+		doc := keyToDocRef(record.Key(), tx.db.client)
 		record.SetError(nil) // Mark record as not having an error
 		_, err := doc.Set(ctx, record.Data())
 		if err != nil {
@@ -152,7 +168,7 @@ func (tx transaction) SetMulti(ctx context.Context, records []dal.Record) error 
 func (tx transaction) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
 	logMultiKeys(ctx, "DeleteMulti", keys)
 	for _, k := range keys {
-		dr := tx.db.keyToDocRef(k)
+		dr := keyToDocRef(k, tx.db.client)
 		if err := tx.tx.Delete(dr); err != nil {
 			return fmt.Errorf("failed to deleteByDocRef record: %w", err)
 		}

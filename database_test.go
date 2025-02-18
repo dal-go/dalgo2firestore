@@ -6,5 +6,8 @@ import (
 )
 
 func TestNewDatabase(t *testing.T) {
-	_ = NewDatabase("test-db", &firestore.Client{})
+	db := NewDatabase("test-db", &firestore.Client{})
+	if db == nil {
+		t.Fatalf("NewDatabase() returned nil")
+	}
 }

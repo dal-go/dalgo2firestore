@@ -54,6 +54,10 @@ func (tx transaction) Update(
 	return tx.tx.Update(dr, fsUpdates, fsPreconditions...)
 }
 
+func (tx transaction) UpdateRecord(ctx context.Context, record dal.Record, updates []dal.Update, preconditions ...dal.Precondition) error {
+	return tx.Update(ctx, record.Key(), updates, preconditions...)
+}
+
 func (tx transaction) UpdateMulti(
 	_ context.Context,
 	keys []*dal.Key,

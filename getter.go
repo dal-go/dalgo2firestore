@@ -13,7 +13,7 @@ import (
 //	client      *firestore.Client
 //	keyToDocRef keyToDocRefFunc
 //	dataTo      func(ds *firestore.DocumentSnapshot, p interface{}) error
-//	get         func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.DocumentSnapshot, err error)
+//	getFirestore         func(ctx context.Context, docRef *firestore.DocumentRef) (_ *firestore.DocumentSnapshot, err error)
 //	getAll      func(ctx context.Context, docRefs []*firestore.DocumentRef) (_ []*firestore.DocumentSnapshot, err error)
 //}
 
@@ -21,7 +21,7 @@ import (
 //	return getter{
 //		client:      db.client,
 //		keyToDocRef: keyToDocRef,
-//		get:         get,
+//		getFirestore:         getFirestore,
 //		getAll:      db.client.GetAll,
 //		dataTo: func(ds *firestore.DocumentSnapshot, p interface{}) error {
 //			return ds.DataTo(p)
@@ -34,13 +34,7 @@ var dataTo = func(ds *firestore.DocumentSnapshot, p interface{}) error {
 }
 
 func (db database) Get(ctx context.Context, record dal.Record) error {
-	if Debugf != nil {
-		Debugf(ctx, "db.Get(%v)", record.Key())
-	}
-	key := record.Key()
-	docRef := db.keyToDocRef(key)
-	docSnapshot, err := get(ctx, docRef)
-	return docSnapshotToRecord(err, docSnapshot, record, dataTo)
+	return get(ctx, record, db.client, getFirestore)
 }
 
 func docSnapshotToRecord(
@@ -62,7 +56,7 @@ func docSnapshotToRecord(
 		record.SetError(err)
 		return nil // This is for GetMulti() to continue processing other records
 	}
-	record.SetError(nil) // !Important - we need to set error to nil before accessing record.Data()
+	record.SetError(nil) // !Important - we need to setFirestore error to nil before accessing record.Data()
 	recData := record.Data()
 	if err = dataTo(docSnapshot, recData); err != nil {
 		if status.Code(err) == codes.NotFound {

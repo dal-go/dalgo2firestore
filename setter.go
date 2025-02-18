@@ -9,14 +9,14 @@ import (
 //type setter struct {
 //	client      *firestore.Client
 //	keyToDocRef keyToDocRefFunc
-//	set         func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error)
+//	setFirestore         func(ctx context.Context, docRef *firestore.DocumentRef, data interface{}) (_ *firestore.WriteResult, err error)
 //	bulkWriter       func(ctx context.Context) *firestore.BulkWriter
 //}
 
 //func newSetter(dtb database) setter {
 //	return setter{
 //		keyToDocRef: keyToDocRef,
-//		set:         set,
+//		setFirestore:         setFirestore,
 //		bulkWriter: func(ctx context.Context) *firestore.BulkWriter {
 //			return dtb.client.BulkWriter(ctx)
 //		},
@@ -31,12 +31,12 @@ func (db database) Set(ctx context.Context, record dal.Record) (err error) {
 		Debugf(ctx, "db.Set(key=%s)", record.Key().String())
 	}
 	key := record.Key()
-	docRef := db.keyToDocRef(key)
+	docRef := keyToDocRef(key, db.client)
 	if docRef == nil {
 		return fmt.Errorf("keyToDocRef is nil for key=%v", key)
 	}
 	data := record.Data()
-	_, err = set(ctx, docRef, data)
+	_, err = setFirestore(ctx, docRef, data)
 	return err
 }
 
@@ -45,7 +45,7 @@ func (db database) SetMulti(ctx context.Context, records []dal.Record) error {
 	batch := db.bulkWriter(ctx)
 	for _, record := range records {
 		key := record.Key()
-		docRef := db.keyToDocRef(key)
+		docRef := keyToDocRef(key, db.client)
 		data := record.Data()
 		if _, err := batch.Set(docRef, data); err != nil {
 			return err

@@ -76,7 +76,7 @@ func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Q
 
 func idFromFirestoreDocRef(key *firestore.DocumentRef, idKind reflect.Kind) (id any, err error) {
 	//if key.Incomplete() {
-	//	return nil, errors.New("datastore key is incomplete: neither key.Name nor key.ID is set")
+	//	return nil, errors.New("datastore key is incomplete: neither key.Name nor key.ID is setFirestore")
 	//}
 	switch idKind {
 	case reflect.Invalid:

@@ -25,7 +25,7 @@ import (
 
 // Delete deletes a record from the database.
 func (db database) Delete(ctx context.Context, key *dal.Key) error {
-	docRef := db.keyToDocRef(key)
+	docRef := keyToDocRef(key, db.client)
 	_, err := deleteByDocRef(ctx, docRef)
 	return err
 }
@@ -35,7 +35,7 @@ func (db database) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
 	logMultiKeys(ctx, "db.DeleteMulti", keys)
 	batch := db.bulkWriter(ctx)
 	for _, key := range keys {
-		docRef := db.keyToDocRef(key)
+		docRef := keyToDocRef(key, db.client)
 		if _, err := batch.Delete(docRef); err != nil {
 			return err
 		}

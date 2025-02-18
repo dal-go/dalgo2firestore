@@ -48,10 +48,6 @@ func (db database) Upsert(_ context.Context, _ dal.Record) error {
 	panic("implement me")
 }
 
-func (db database) keyToDocRef(key *dal.Key) *firestore.DocumentRef {
-	return keyToDocRef(key, db.client)
-}
-
 func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
 	if Debugf != nil {
 		Debugf(ctx, "db.Insert(key=%v)", record.Key())
