@@ -154,6 +154,7 @@ func testEndToEnd(t *testing.T) {
 
 	if firestoreProjectID == "" {
 		firestoreProjectID = "dalgo"
+		_ = os.Setenv("FIREBASE_PROJECT_ID", firestoreProjectID)
 		//t.Fatalf("Environment variable FIREBASE_PROJECT_ID is not set")
 	}
 	log.Println("Firestore Project ID:", firestoreProjectID)
