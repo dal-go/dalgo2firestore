@@ -105,10 +105,8 @@ func get(
 	key := record.Key()
 	docRef := keyToDocRef(key, client)
 	var docSnapshot *firestore.DocumentSnapshot
-	if docSnapshot, err = getByDocRef(ctx, docRef); err == nil {
-		err = docSnapshotToRecord(err, docSnapshot, record, dataTo)
-	}
-	return
+	docSnapshot, err = getByDocRef(ctx, docRef)
+	return docSnapshotToRecord(err, docSnapshot, record, dataTo)
 }
 
 func (tx transaction) Set(ctx context.Context, record dal.Record) error {
@@ -125,8 +123,7 @@ func (tx transaction) Delete(ctx context.Context, key *dal.Key) error {
 		Debugf(ctx, "tx.Delete(%v)", key)
 	}
 	dr := keyToDocRef(key, tx.db.client)
-	err := tx.tx.Delete(dr)
-	return err
+	return tx.tx.Delete(dr)
 }
 
 func (tx transaction) GetMulti(ctx context.Context, records []dal.Record) error {
