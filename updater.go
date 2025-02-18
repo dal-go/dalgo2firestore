@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 )
 
 //type updater struct {
@@ -20,7 +21,7 @@ import (
 func (db database) Update(
 	ctx context.Context,
 	key *dal.Key,
-	update []dal.Update,
+	update []update.Update,
 	preconditions ...dal.Precondition,
 ) error {
 	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, d dal.ReadwriteTransaction) error {
@@ -31,7 +32,7 @@ func (db database) Update(
 func (db database) UpdateMulti(
 	ctx context.Context,
 	keys []*dal.Key,
-	updates []dal.Update,
+	updates []update.Update,
 	preconditions ...dal.Precondition,
 ) error {
 	return db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
@@ -42,7 +43,7 @@ func (db database) UpdateMulti(
 func (tx transaction) Update(
 	_ context.Context,
 	key *dal.Key,
-	updates []dal.Update,
+	updates []update.Update,
 	preconditions ...dal.Precondition,
 ) error {
 	dr := keyToDocRef(key, tx.db.client)
@@ -54,14 +55,14 @@ func (tx transaction) Update(
 	return tx.tx.Update(dr, fsUpdates, fsPreconditions...)
 }
 
-func (tx transaction) UpdateRecord(ctx context.Context, record dal.Record, updates []dal.Update, preconditions ...dal.Precondition) error {
+func (tx transaction) UpdateRecord(ctx context.Context, record dal.Record, updates []update.Update, preconditions ...dal.Precondition) error {
 	return tx.Update(ctx, record.Key(), updates, preconditions...)
 }
 
 func (tx transaction) UpdateMulti(
 	_ context.Context,
 	keys []*dal.Key,
-	updates []dal.Update,
+	updates []update.Update,
 	preconditions ...dal.Precondition,
 ) error {
 	fsPreconditions := getUpdatePreconditions(preconditions)
@@ -79,9 +80,9 @@ func (tx transaction) UpdateMulti(
 	return nil
 }
 
-func getFirestoreUpdate(update dal.Update) firestore.Update {
-	value := update.Value
-	if value == dal.DeleteField {
+func getFirestoreUpdate(u update.Update) firestore.Update {
+	value := u.Value()
+	if value == update.DeleteField {
 		value = firestore.Delete
 	} else if transform, ok := dal.IsTransform(value); ok {
 		name := transform.Name()
@@ -93,8 +94,8 @@ func getFirestoreUpdate(update dal.Update) firestore.Update {
 		}
 	}
 	return firestore.Update{
-		Path:      update.Field,
-		FieldPath: (firestore.FieldPath)(update.FieldPath),
+		Path:      u.FieldName(),
+		FieldPath: (firestore.FieldPath)(u.FieldPath()),
 		Value:     value,
 	}
 }
