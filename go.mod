@@ -1,15 +1,15 @@
 module github.com/dal-go/dalgo2firestore
 
-go 1.22.7
+go 1.23.0
 
-toolchain go1.23.5
+toolchain go1.24.0
 
 require (
 	cloud.google.com/go/firestore v1.18.0
 	github.com/dal-go/dalgo v0.18.0
 	github.com/dal-go/dalgo-end2end-tests v0.0.46
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.221.0
+	google.golang.org/api v0.222.0
 	google.golang.org/grpc v1.70.0
 )
 
