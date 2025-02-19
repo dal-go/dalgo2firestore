@@ -9,26 +9,33 @@ import (
 	"time"
 )
 
-func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) error {
-	options = append(options, dal.TxWithReadonly())
-	firestoreTxOptions := createFirestoreTransactionOptions(options)
-	return db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
-	}, firestoreTxOptions...)
-}
-
-func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) error {
-	firestoreTxOptions := createFirestoreTransactionOptions(options)
+func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
-		Debugf(ctx, "RunReadwriteTransaction: firestoreTxOptions: %+v", firestoreTxOptions)
 	}
-	err := db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+	options = append(options, dal.TxWithReadonly())
+	firestoreTxOptions := createFirestoreTransactionOptions(options)
+	err = db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
 	}, firestoreTxOptions...)
 	if Debugf != nil {
-		Debugf(ctx, "RunReadwriteTransaction() completed in %v, err: %v", time.Until(started), err)
+		Debugf(ctx, "RunReadonlyTransaction() completed in %v, err: %v", time.Since(started), err)
+	}
+	return
+}
+
+func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker, options ...dal.TransactionOption) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
+	firestoreTxOptions := createFirestoreTransactionOptions(options)
+	err = db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
+	}, firestoreTxOptions...)
+	if Debugf != nil {
+		Debugf(ctx, "RunReadwriteTransaction() completed in %v, err: %v", time.Since(started), err)
 	}
 	return err
 }
