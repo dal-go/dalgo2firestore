@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"time"
 )
 
 //type setter struct {
@@ -40,17 +41,21 @@ func (db database) Set(ctx context.Context, record dal.Record) (err error) {
 	return err
 }
 
-func (db database) SetMulti(ctx context.Context, records []dal.Record) error {
-	logMultiRecords(ctx, "db.SetMulti", records)
+func (db database) SetMulti(ctx context.Context, records []dal.Record) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	batch := db.bulkWriter(ctx)
 	for _, record := range records {
 		key := record.Key()
 		docRef := keyToDocRef(key, db.client)
 		data := record.Data()
-		if _, err := batch.Set(docRef, data); err != nil {
-			return err
+		if _, err = batch.Set(docRef, data); err != nil {
+			break
 		}
 	}
 	batch.End()
-	return nil
+	logMultiRecords(ctx, "db.SetMulti", records, started, err)
+	return err
 }

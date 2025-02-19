@@ -3,6 +3,7 @@ package dalgo2firestore
 import (
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"time"
 )
 
 //type deleter struct {
@@ -24,22 +25,33 @@ import (
 //}
 
 // Delete deletes a record from the database.
-func (db database) Delete(ctx context.Context, key *dal.Key) error {
+func (db database) Delete(ctx context.Context, key *dal.Key) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	docRef := keyToDocRef(key, db.client)
-	_, err := deleteByDocRef(ctx, docRef)
+	_, err = deleteByDocRef(ctx, docRef)
+	if Debugf != nil {
+		Debugf(ctx, "db.Delete(%v) completed in %v, err: %v", key, time.Since(started), err)
+	}
 	return err
 }
 
 // DeleteMulti deletes multiple records from the database.
-func (db database) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
-	logMultiKeys(ctx, "db.DeleteMulti", keys)
+func (db database) DeleteMulti(ctx context.Context, keys []*dal.Key) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	batch := db.bulkWriter(ctx)
 	for _, key := range keys {
 		docRef := keyToDocRef(key, db.client)
-		if _, err := batch.Delete(docRef); err != nil {
-			return err
+		if _, err = batch.Delete(docRef); err != nil {
+			break
 		}
 	}
 	batch.End()
-	return nil
+	logMultiKeys(ctx, "db.DeleteMulti", keys, started, err)
+	return err
 }

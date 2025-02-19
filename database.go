@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"github.com/dal-go/dalgo/dal"
+	"time"
 )
 
 // NewDatabase creates new instance of dalgo interface to Firestore
@@ -48,9 +49,10 @@ func (db database) Upsert(_ context.Context, _ dal.Record) error {
 	panic("implement me")
 }
 
-func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
+func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) (err error) {
+	var started time.Time
 	if Debugf != nil {
-		Debugf(ctx, "db.Insert(key=%v)", record.Key())
+		started = time.Now()
 	}
 	options := dal.NewInsertOptions(opts...)
 	generateID := options.IDGenerator()
@@ -59,12 +61,19 @@ func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.In
 			return err
 		}
 	}
-	_, err := insert(ctx, db, record, createNonTransactional)
+	_, err = insert(ctx, db, record, createNonTransactional)
+	if Debugf != nil {
+		Debugf(ctx, "db.Insert(%v) completed in %v, err: %v", record.Key(), time.Since(started), err)
+	}
 	return err
 }
 
 func (db database) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
-	logMultiRecords(ctx, "db.InsertMulti", records)
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	_, err = insertMulti(ctx, db, records, createNonTransactional, opts...)
+	logMultiRecords(ctx, "db.InsertMulti", records, started, err)
 	return err
 }

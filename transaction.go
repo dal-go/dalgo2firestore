@@ -63,9 +63,10 @@ func (tx transaction) Options() dal.TransactionOptions {
 	return tx.options
 }
 
-func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) error {
+func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) (err error) {
+	var started time.Time
 	if Debugf != nil {
-		Debugf(ctx, "tx.Insert(%v)", record.Key())
+		started = time.Now()
 	}
 	options := dal.NewInsertOptions(opts...)
 	idGenerator := options.IDGenerator()
@@ -76,15 +77,15 @@ func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal
 	dr := keyToDocRef(key, tx.db.client)
 	record.SetError(nil) // Mark record as not having an error
 	data := record.Data()
-	return tx.tx.Create(dr, data)
+	err = tx.tx.Create(dr, data)
+	if Debugf != nil {
+		Debugf(ctx, "tx.Insert(%v) completed in %v, err: %v", key, time.Since(started), err)
+	}
+	return
 }
 
 func (tx transaction) Upsert(ctx context.Context, record dal.Record) error {
-	if Debugf != nil {
-		Debugf(ctx, "tx.Upsert(%v)", record.Key())
-	}
-	dr := keyToDocRef(record.Key(), tx.db.client)
-	return tx.tx.Set(dr, record.Data())
+	return tx.Set(ctx, record)
 }
 
 func (tx transaction) Get(ctx context.Context, record dal.Record) error {
@@ -99,84 +100,136 @@ func get(
 	client *firestore.Client,
 	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
 ) (err error) {
+	var started time.Time
 	if Debugf != nil {
-		Debugf(ctx, "tx.Get(%v)", record.Key())
+		started = time.Now()
 	}
 	key := record.Key()
 	docRef := keyToDocRef(key, client)
 	var docSnapshot *firestore.DocumentSnapshot
 	docSnapshot, err = getByDocRef(ctx, docRef)
-	return docSnapshotToRecord(err, docSnapshot, record, dataTo)
+	err = docSnapshotToRecord(err, docSnapshot, record, dataTo)
+	if Debugf != nil {
+		Debugf(ctx, "get(%v) completed in %v, err: %v", key, time.Since(started), err)
+	}
+	return
 }
 
-func (tx transaction) Set(ctx context.Context, record dal.Record) error {
+func (tx transaction) Set(ctx context.Context, record dal.Record) (err error) {
+	var started time.Time
 	if Debugf != nil {
-		Debugf(ctx, "tx.Set(%v)", record.Key())
+		started = time.Now()
 	}
-	dr := keyToDocRef(record.Key(), tx.db.client)
-	err := tx.tx.Set(dr, record.Data())
+	key := record.Key()
+	dr := keyToDocRef(key, tx.db.client)
+	err = tx.tx.Set(dr, record.Data())
+	if Debugf != nil {
+		Debugf(ctx, "tx.Set(%v) completed in %v, err: %v", key, time.Since(started), err)
+	}
 	return err
 }
 
-func (tx transaction) Delete(ctx context.Context, key *dal.Key) error {
+func (tx transaction) Delete(ctx context.Context, key *dal.Key) (err error) {
+	var started time.Time
 	if Debugf != nil {
-		Debugf(ctx, "tx.Delete(%v)", key)
+		started = time.Now()
 	}
 	dr := keyToDocRef(key, tx.db.client)
-	return tx.tx.Delete(dr)
+	err = tx.tx.Delete(dr)
+	if Debugf != nil {
+		Debugf(ctx, "tx.Delete(%v) completed in %v, err: %v", key, time.Since(started), err)
+	}
+	return
 }
 
 func (tx transaction) GetMulti(ctx context.Context, records []dal.Record) error {
+	return getMulti(ctx, records, "tx", tx.db.client,
+		func(_ context.Context, drs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error) {
+			return tx.tx.GetAll(drs)
+		},
+	)
+}
+
+func getMulti(
+	ctx context.Context,
+	records []dal.Record,
+	caller string,
+	client *firestore.Client,
+	getAll func(ctx context.Context, drs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error),
+) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	dr := make([]*firestore.DocumentRef, len(records))
 	for i, r := range records {
-		dr[i] = keyToDocRef(r.Key(), tx.db.client)
+		dr[i] = keyToDocRef(r.Key(), client)
 	}
-	logMultiRecords(ctx, "tx.GetMulti", records)
-	ds, err := tx.tx.GetAll(dr)
-	if err != nil {
+
+	var ds []*firestore.DocumentSnapshot
+	if ds, err = getAll(ctx, dr); err != nil {
 		return fmt.Errorf("failed to getFirestore %d records by keys: %w", len(records), err)
 	}
+
 	var errs []error
 	for i, d := range ds {
 		if err = docSnapshotToRecord(nil, d, records[i], dataTo); err != nil {
 			errs = append(errs, err)
 		}
 	}
+
 	if len(errs) > 0 {
-		return fmt.Errorf("failed to getFirestore %d out of %d records requested by keys: %w", len(errs), len(records), errors.Join(errs...))
+		err = fmt.Errorf(caller+".getMulti() failed to getFirestore %d out of %d records requested by keys: %w", len(errs), len(records), errors.Join(errs...))
 	}
+
+	logMultiRecords(ctx, caller+".GetMulti", records, started, err)
+
 	return nil
+
 }
 
-func (tx transaction) SetMulti(ctx context.Context, records []dal.Record) error {
-	logMultiRecords(ctx, "SetMulti", records)
+func (tx transaction) SetMulti(ctx context.Context, records []dal.Record) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	for _, record := range records { // TODO: can we do this in parallel?
 		doc := keyToDocRef(record.Key(), tx.db.client)
 		record.SetError(nil) // Mark record as not having an error
-		_, err := doc.Set(ctx, record.Data())
+		_, err = doc.Set(ctx, record.Data())
 		if err != nil {
 			record.SetError(err)
-			return err
+			break
 		}
 	}
+	logMultiRecords(ctx, "tx.SetMulti", records, started, err)
 	return nil
 }
 
-func (tx transaction) DeleteMulti(ctx context.Context, keys []*dal.Key) error {
-	logMultiKeys(ctx, "DeleteMulti", keys)
+func (tx transaction) DeleteMulti(ctx context.Context, keys []*dal.Key) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	for _, k := range keys {
 		dr := keyToDocRef(k, tx.db.client)
-		if err := tx.tx.Delete(dr); err != nil {
-			return fmt.Errorf("failed to deleteByDocRef record: %w", err)
+		if err = tx.tx.Delete(dr); err != nil {
+			err = fmt.Errorf("failed to deleteByDocRef record: %w", err)
+			break
 		}
 	}
+	logMultiKeys(ctx, "tx.DeleteMulti", keys, started, err)
 	return nil
 }
 
 func (tx transaction) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
-	logMultiRecords(ctx, "InsertMulti", records)
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
 	_, err = insertMulti(ctx, tx.db, records, func(ctx context.Context, docRef *firestore.DocumentRef, data any) (result *firestore.WriteResult, err error) {
 		return nil, tx.tx.Create(docRef, data)
 	}, opts...)
+	logMultiRecords(ctx, "tx.InsertMulti", records, started, err)
 	return
 }

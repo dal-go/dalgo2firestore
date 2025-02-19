@@ -71,8 +71,5 @@ func docSnapshotToRecord(
 }
 
 func (db database) GetMulti(ctx context.Context, records []dal.Record) error {
-	logMultiRecords(ctx, "db.GetMulti", records)
-	return db.RunReadonlyTransaction(ctx, func(ctx context.Context, tx dal.ReadTransaction) error {
-		return tx.GetMulti(ctx, records)
-	})
+	return getMulti(ctx, records, "db", db.client, db.client.GetAll)
 }
