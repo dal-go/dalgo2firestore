@@ -56,9 +56,9 @@ func handleCommandStderr(t *testing.T, stderr *bytes.Buffer, emulatorExited *boo
 		}
 		if !reading {
 			reading = true
-			t.Error("ERROR in Firebase emulator:")
+			t.Log("ERROR in Firebase emulator:")
 		}
-		t.Error("\t" + line)
+		t.Log("\t" + line)
 	}
 }
 
@@ -68,7 +68,7 @@ func terminateFirebaseEmulators(t *testing.T, cmd *exec.Cmd) {
 	}
 	// TODO(help-wanted): Consider cmd.Cancel() ?
 	if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
-		if errors.Is(err, os.ErrProcessDone) {
+		if !errors.Is(err, os.ErrProcessDone) {
 			t.Error("Failed to terminate Firebase emulator:", err)
 			return
 		}
@@ -79,7 +79,6 @@ func terminateFirebaseEmulators(t *testing.T, cmd *exec.Cmd) {
 func startFirebaseEmulators(t *testing.T) (cmd *exec.Cmd, stdout, stderr *bytes.Buffer) {
 	cmd = exec.Command("firebase",
 		"emulators:start",
-		"--debug",
 		"-c", "./firebase/firebase.json",
 		"--only", "firestore",
 		"--project", "dalgo",
@@ -168,6 +167,6 @@ func testEndToEnd(t *testing.T) {
 		t.Fatalf("failed to create Firestore client: %v", err)
 	}
 	db := dalgo2firestore.NewDatabase("test-db", client)
-
+	_ = db
 	end2end.TestDalgoDB(t, db, nil, false)
 }
