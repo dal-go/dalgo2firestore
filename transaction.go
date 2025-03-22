@@ -78,7 +78,7 @@ func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal
 	options := dal.NewInsertOptions(opts...)
 	idGenerator := options.IDGenerator()
 	key := record.Key()
-	if key.ID == nil {
+	if key.ID == nil && idGenerator != nil {
 		key.ID = idGenerator(ctx, record)
 	}
 	dr := keyToDocRef(key, tx.db.client)
