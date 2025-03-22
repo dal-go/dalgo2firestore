@@ -24,10 +24,7 @@ var keyToCollectionRef = func(key *dal.Key, client *firestore.Client) *firestore
 		panic("key is a required parameter, got nil")
 	}
 	path := PathFromKey(key)
-	const nilSuffix = "/<nil>"
-	if strings.HasSuffix(path, nilSuffix) {
-		path = path[:len(path)-len(nilSuffix)]
-	}
+	path = strings.TrimSuffix(path, "/<nil>")
 	collectionRef := client.Collection(path)
 	if collectionRef == nil {
 		panic(fmt.Sprintf("collectionRef is nil for path=%s, key: %v", path, key))
