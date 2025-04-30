@@ -51,7 +51,7 @@ func (tx transaction) Update(
 	dr := keyToDocRef(key, tx.db.client)
 	fsUpdates, err := getFirestoreUpdates(updates)
 	if err != nil {
-		return fmt.Errorf("updates for record with key=%s is invalid: %w", key, err)
+		return fmt.Errorf("updates for record with key=%s are invalid: %w", key, err)
 	}
 	fsPreconditions := getUpdatePreconditions(preconditions)
 	return tx.tx.Update(dr, fsUpdates, fsPreconditions...)
@@ -74,7 +74,7 @@ func (tx transaction) UpdateMulti(
 		for i, key := range keys {
 			ks[i] = key.String()
 		}
-		return fmt.Errorf("updates for records with keys=[%s] is invalid: %w", strings.Join(ks, ","), err)
+		return fmt.Errorf("updates for records with keys=[%s] are invalid: %w", strings.Join(ks, ","), err)
 	}
 	for _, key := range keys {
 		dr := keyToDocRef(key, tx.db.client)
@@ -87,6 +87,9 @@ func (tx transaction) UpdateMulti(
 }
 
 func getFirestoreUpdates(updates []update.Update) (fsUpdates []firestore.Update, err error) {
+	if len(updates) == 0 {
+		return nil, errors.New("got 0 updates")
+	}
 	fsUpdates = make([]firestore.Update, len(updates))
 	for i, u := range updates {
 		if fsUpdate, err := getFirestoreUpdate(u); err != nil {
