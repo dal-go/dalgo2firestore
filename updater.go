@@ -3,9 +3,11 @@ package dalgo2firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
+	"strings"
 )
 
 //type updater struct {
@@ -47,9 +49,9 @@ func (tx transaction) Update(
 	preconditions ...dal.Precondition,
 ) error {
 	dr := keyToDocRef(key, tx.db.client)
-	fsUpdates := make([]firestore.Update, len(updates))
-	for i, u := range updates {
-		fsUpdates[i] = getFirestoreUpdate(u)
+	fsUpdates, err := getFirestoreUpdates(updates)
+	if err != nil {
+		return fmt.Errorf("updates for record with key=%s is invalid: %w", key, err)
 	}
 	fsPreconditions := getUpdatePreconditions(preconditions)
 	return tx.tx.Update(dr, fsUpdates, fsPreconditions...)
@@ -66,21 +68,37 @@ func (tx transaction) UpdateMulti(
 	preconditions ...dal.Precondition,
 ) error {
 	fsPreconditions := getUpdatePreconditions(preconditions)
+	fsUpdates, err := getFirestoreUpdates(updates)
+	if err != nil {
+		ks := make([]string, len(keys))
+		for i, key := range keys {
+			ks[i] = key.String()
+		}
+		return fmt.Errorf("updates for records with keys=[%s] is invalid: %w", strings.Join(ks, ","), err)
+	}
 	for _, key := range keys {
 		dr := keyToDocRef(key, tx.db.client)
-		fsUpdates := make([]firestore.Update, len(updates))
-		for i, u := range updates {
-			fsUpdates[i] = getFirestoreUpdate(u)
-		}
 		if err := tx.tx.Update(dr, fsUpdates, fsPreconditions...); err != nil {
 			keyPath := PathFromKey(key)
-			return fmt.Errorf("failed to update record with key: %v: %w", keyPath, err)
+			return fmt.Errorf("failed to update record with key=%s (path=%s): %w", key, keyPath, err)
 		}
 	}
 	return nil
 }
 
-func getFirestoreUpdate(u update.Update) firestore.Update {
+func getFirestoreUpdates(updates []update.Update) (fsUpdates []firestore.Update, err error) {
+	fsUpdates = make([]firestore.Update, len(updates))
+	for i, u := range updates {
+		if fsUpdate, err := getFirestoreUpdate(u); err != nil {
+			return nil, fmt.Errorf("updates[%d] is invalid: %w", i, err)
+		} else {
+			fsUpdates[i] = fsUpdate
+		}
+	}
+	return fsUpdates, nil
+}
+
+func getFirestoreUpdate(u update.Update) (firestore.Update, error) {
 	value := u.Value()
 	if value == update.DeleteField {
 		value = firestore.Delete
@@ -93,11 +111,15 @@ func getFirestoreUpdate(u update.Update) firestore.Update {
 			panic("unsupported transform operation: " + name)
 		}
 	}
-	return firestore.Update{
+	fsUpdate := firestore.Update{
 		Path:      u.FieldName(),
 		FieldPath: (firestore.FieldPath)(u.FieldPath()),
 		Value:     value,
 	}
+	if fsUpdate.Path == "" && len(fsUpdate.FieldPath) == 0 {
+		return fsUpdate, errors.New("has no Path nor FieldPath")
+	}
+	return fsUpdate, nil
 }
 
 func getUpdatePreconditions(preconditions []dal.Precondition) (fsPreconditions []firestore.Precondition) {
