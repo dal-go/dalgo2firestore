@@ -92,10 +92,8 @@ func getFirestoreUpdates(updates []update.Update) (fsUpdates []firestore.Update,
 	}
 	fsUpdates = make([]firestore.Update, len(updates))
 	for i, u := range updates {
-		if fsUpdate, err := getFirestoreUpdate(u); err != nil {
+		if fsUpdates[i], err = getFirestoreUpdate(u); err != nil {
 			return nil, fmt.Errorf("updates[%d] is invalid: %w", i, err)
-		} else {
-			fsUpdates[i] = fsUpdate
 		}
 	}
 	return fsUpdates, nil
@@ -119,8 +117,18 @@ func getFirestoreUpdate(u update.Update) (firestore.Update, error) {
 		FieldPath: (firestore.FieldPath)(u.FieldPath()),
 		Value:     value,
 	}
-	if fsUpdate.Path == "" && len(fsUpdate.FieldPath) == 0 {
-		return fsUpdate, errors.New("has no Path nor FieldPath")
+	if fsUpdate.Path != "" && strings.Contains(fsUpdate.Path, ".") {
+		return fsUpdate, fmt.Errorf("referencing a field name with a '.' character, should use FieldPath for nested field update: '%s'", fsUpdate.Path)
+	}
+	if fsUpdate.Path == "" {
+		if len(fsUpdate.FieldPath) == 0 {
+			return fsUpdate, errors.New("has no Path nor FieldPath")
+		}
+		for i, p := range fsUpdate.FieldPath {
+			if p == "" {
+				return fsUpdate, fmt.Errorf("has empty value at FieldPath[%d]: [%s]", i, strings.Join(fsUpdate.FieldPath, ","))
+			}
+		}
 	}
 	return fsUpdate, nil
 }
