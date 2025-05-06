@@ -16,7 +16,7 @@ func insert(ctx context.Context, db database, record dal.Record, create createFu
 	} else {
 		log.Println("inserting document: docRef=nil")
 	}
-	record.SetError(dal.NoError)
+	record.SetError(dal.ErrNoError)
 	data := record.Data()
 	if validatable, ok := data.(interface{ Validate() error }); ok {
 		if err = validatable.Validate(); err != nil {
@@ -24,7 +24,7 @@ func insert(ctx context.Context, db database, record dal.Record, create createFu
 			return
 		}
 	}
-	record.SetError(dal.NoError)
+	record.SetError(dal.ErrNoError)
 	if result, err = create(ctx, docRef, data); err != nil {
 		record.SetError(fmt.Errorf("failed to insert record: %w", err))
 		return
