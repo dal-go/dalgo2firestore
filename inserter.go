@@ -18,12 +18,22 @@ func insert(ctx context.Context, db database, record dal.Record, create createFu
 	}
 	record.SetError(dal.ErrNoError)
 	data := record.Data()
-	if validatable, ok := data.(interface{ Validate() error }); ok {
-		if err = validatable.Validate(); err != nil {
-			record.SetError(err)
-			return
+
+	{ // TODO: Validations should be called by dalgo core
+		if validatable, ok := data.(interface{ Validate() error }); ok {
+			if err = validatable.Validate(); err != nil {
+				record.SetError(err)
+				return
+			}
+		}
+		if validatable, ok := data.(interface{ ValidateWithKey(key *dal.Key) error }); ok {
+			if err = validatable.ValidateWithKey(record.Key()); err != nil {
+				record.SetError(fmt.Errorf("validate with record key returned error: %w", err))
+				return
+			}
 		}
 	}
+
 	record.SetError(dal.ErrNoError)
 	if result, err = create(ctx, docRef, data); err != nil {
 		record.SetError(fmt.Errorf("failed to insert record: %w", err))
