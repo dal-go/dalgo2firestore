@@ -134,8 +134,11 @@ func get(
 	key := record.Key()
 	docRef := keyToDocRef(key, client)
 	var docSnapshot *firestore.DocumentSnapshot
-	docSnapshot, err = getByDocRef(ctx, docRef)
-	err = docSnapshotToRecord(err, docSnapshot, record, dataTo)
+	if docSnapshot, err = getByDocRef(ctx, docRef); err != nil {
+		err = handleRecordError(err, record)
+	} else {
+		err = docSnapshotToRecord(docSnapshot, record, dataTo)
+	}
 	if Debugf != nil {
 		Debugf(ctx, "get(%v) completed in %v, err: %v", key, time.Since(started), err)
 	}
@@ -200,7 +203,7 @@ func getMulti(
 
 	var errs []error
 	for i, d := range ds {
-		if err = docSnapshotToRecord(nil, d, records[i], dataTo); err != nil {
+		if err = docSnapshotToRecord(d, records[i], dataTo); err != nil {
 			errs = append(errs, err)
 		}
 	}

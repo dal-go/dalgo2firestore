@@ -37,12 +37,7 @@ func (db database) Get(ctx context.Context, record dal.Record) error {
 	return get(ctx, record, db.client, getFirestore)
 }
 
-func docSnapshotToRecord(
-	err error,
-	docSnapshot *firestore.DocumentSnapshot,
-	record dal.Record,
-	dataTo func(ds *firestore.DocumentSnapshot, p interface{}) error,
-) error {
+func handleRecordError(err error, record dal.Record) error {
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			err = dal.NewErrNotFoundByKey(record.Key(), err)
@@ -50,15 +45,23 @@ func docSnapshotToRecord(
 		record.SetError(err)
 		return err
 	}
+	return nil
+}
+
+func docSnapshotToRecord(
+	docSnapshot *firestore.DocumentSnapshot,
+	record dal.Record,
+	dataTo func(ds *firestore.DocumentSnapshot, p interface{}) error,
+) error {
 	if !docSnapshot.Exists() {
 		key := record.Key()
-		err = dal.NewErrNotFoundByKey(key, err)
+		err := dal.NewErrNotFoundByKey(key, nil)
 		record.SetError(err)
 		return nil // This is for GetMulti() to continue processing other records
 	}
 	record.SetError(nil) // !Important - we need to setFirestore error to nil before accessing record.Data()
 	recData := record.Data()
-	if err = dataTo(docSnapshot, recData); err != nil {
+	if err := dataTo(docSnapshot, recData); err != nil {
 		if status.Code(err) == codes.NotFound {
 			key := record.Key()
 			err = dal.NewErrNotFoundByKey(key, err)
