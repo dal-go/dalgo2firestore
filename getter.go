@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 //type getter struct {
@@ -33,16 +34,76 @@ var dataTo = func(ds *firestore.DocumentSnapshot, p interface{}) error {
 	return ds.DataTo(p)
 }
 
-func (db database) Get(ctx context.Context, record dal.Record) error {
-	return get(ctx, record, db.client, getFirestore)
+func getByKey(
+	ctx context.Context,
+	key *dal.Key,
+	client *firestore.Client,
+	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
+) (
+	docSnapshot *firestore.DocumentSnapshot, err error,
+) {
+	docRef := keyToDocRef(key, client)
+	if docSnapshot, err = getByDocRef(ctx, docRef); err != nil {
+		err = handleGetByKeyError(key, err)
+	}
+	return
 }
 
-func handleRecordError(err error, record dal.Record) error {
+func existsByKey(
+	ctx context.Context,
+	key *dal.Key,
+	client *firestore.Client,
+	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
+) (
+	exists bool, err error,
+) {
+	_, err = getByKey(ctx, key, client, getByDocRef)
+	exists = err == nil
+	return
+}
+
+func getAndUnmarshal(
+	ctx context.Context,
+	record dal.Record,
+	client *firestore.Client,
+	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
+) (err error) {
+	var started time.Time
+	if Debugf != nil {
+		started = time.Now()
+	}
+	key := record.Key()
+	var docSnapshot *firestore.DocumentSnapshot
+
+	if docSnapshot, err = getByKey(ctx, key, client, getByDocRef); err != nil {
+		if err = handleGetByKeyError(key, err); err != nil {
+			record.SetError(err)
+		}
+	} else {
+		if err = docSnapshotToRecord(docSnapshot, record, dataTo); err != nil {
+			//Do not set error on record to prevent accidental access to data?
+			record.SetError(err)
+		}
+	}
+	if Debugf != nil {
+		Debugf(ctx, "getAndUnmarshal(%v) completed in %v, err: %v", key, time.Since(started), err)
+	}
+	return
+}
+
+func (db database) Get(ctx context.Context, record dal.Record) error {
+	return getAndUnmarshal(ctx, record, db.client, getByDocRef)
+}
+
+func (db database) Exists(ctx context.Context, key *dal.Key) (exists bool, err error) {
+	return existsByKey(ctx, key, db.client, getByDocRef)
+}
+
+func handleGetByKeyError(key *dal.Key, err error) error {
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			err = dal.NewErrNotFoundByKey(record.Key(), err)
+			err = dal.NewErrNotFoundByKey(key, err)
 		}
-		record.SetError(err)
 		return err
 	}
 	return nil

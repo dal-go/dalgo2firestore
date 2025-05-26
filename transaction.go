@@ -143,34 +143,16 @@ func (tx transaction) Upsert(ctx context.Context, record dal.Record) error {
 	return tx.Set(ctx, record)
 }
 
-func (tx transaction) Get(ctx context.Context, record dal.Record) error {
-	return get(ctx, record, tx.db.client, func(_ context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error) {
-		return tx.tx.Get(dr)
-	})
+func (tx transaction) getByDocRef(_ context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error) {
+	return tx.tx.Get(dr)
 }
 
-func get(
-	ctx context.Context,
-	record dal.Record,
-	client *firestore.Client,
-	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
-) (err error) {
-	var started time.Time
-	if Debugf != nil {
-		started = time.Now()
-	}
-	key := record.Key()
-	docRef := keyToDocRef(key, client)
-	var docSnapshot *firestore.DocumentSnapshot
-	if docSnapshot, err = getByDocRef(ctx, docRef); err != nil {
-		err = handleRecordError(err, record)
-	} else {
-		err = docSnapshotToRecord(docSnapshot, record, dataTo)
-	}
-	if Debugf != nil {
-		Debugf(ctx, "get(%v) completed in %v, err: %v", key, time.Since(started), err)
-	}
-	return
+func (tx transaction) Get(ctx context.Context, record dal.Record) error {
+	return getAndUnmarshal(ctx, record, tx.db.client, tx.getByDocRef)
+}
+
+func (tx transaction) Exists(ctx context.Context, key *dal.Key) (exists bool, err error) {
+	return existsByKey(ctx, key, tx.db.client, tx.getByDocRef)
 }
 
 func (tx transaction) Set(ctx context.Context, record dal.Record) (err error) {

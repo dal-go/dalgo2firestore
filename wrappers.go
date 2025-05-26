@@ -19,7 +19,7 @@ var setFirestore = func(ctx context.Context, docRef *firestore.DocumentRef, data
 	return docRef.Set(ctx, data)
 }
 
-var getFirestore = func(ctx context.Context, docRef *firestore.DocumentRef) (result *firestore.DocumentSnapshot, err error) {
+var getByDocRef = func(ctx context.Context, docRef *firestore.DocumentRef) (result *firestore.DocumentSnapshot, err error) {
 	return docRef.Get(ctx)
 }
 
