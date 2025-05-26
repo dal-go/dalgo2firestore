@@ -4,14 +4,15 @@ go 1.24.2
 
 require (
 	cloud.google.com/go/firestore v1.18.0
-	github.com/dal-go/dalgo v0.19.0
+	github.com/dal-go/dalgo v0.20.0
 	github.com/dal-go/dalgo-end2end-tests v0.0.50
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.234.0
-	google.golang.org/grpc v1.72.1
+	google.golang.org/grpc v1.72.2
 )
 
 //replace github.com/dal-go/dalgo => ../dalgo
+
 //replace github.com/dal-go/dalgo-end2end-tests => ../dalgo-end2end-tests
 
 require (
@@ -46,7 +47,7 @@ require (
 	golang.org/x/time v0.11.0 // indirect
 	google.golang.org/genproto v0.0.0-20250505200425-f936aa4a68b2 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250505200425-f936aa4a68b2 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250512202823-5a2f75b736a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

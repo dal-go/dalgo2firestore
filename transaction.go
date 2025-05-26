@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dal-go/dalgo/dal"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"time"
 )
 
@@ -71,17 +73,47 @@ func (tx transaction) Options() dal.TransactionOptions {
 }
 
 func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) (err error) {
+	record.SetError(nil) // !Important - we need to set the error to nil before accessing record.Data()
+
+	// This data validation has to be executed by dalgo dal package.
+	if validatable, ok := record.Data().(interface{ Validate() error }); ok {
+		if err = validatable.Validate(); err != nil {
+			return fmt.Errorf("record data is invalid: %w", err)
+		}
+	}
+
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
 	}
 	options := dal.NewInsertOptions(opts...)
 	idGenerator := options.IDGenerator()
-	key := record.Key()
-	if key.ID == nil && idGenerator != nil {
-		key.ID = idGenerator(ctx, record)
+	record.SetError(nil) // Mark the record as not having an error
+	if idGenerator != nil {
+		existsFunc := func(key *dal.Key) (err error) {
+			docRef := keyToDocRef(key, tx.db.client)
+			_, err = docRef.Get(ctx)
+			if status.Code(err) == codes.NotFound {
+				err = dal.NewErrNotFoundByKey(key, err)
+			}
+			return err
+		}
+		insertFunc := func(record dal.Record) error {
+			key := record.Key()
+			docRef := keyToDocRef(key, tx.db.client)
+			data := record.Data()
+			if err = tx.tx.Create(docRef, data); err != nil {
+				return err
+			}
+			return nil
+		}
+		return dal.InsertWithIdGenerator(ctx, record, idGenerator, 10,
+			existsFunc,
+			insertFunc,
+		)
 	}
-	record.SetError(nil) // Mark record as not having an error
+	key := record.Key()
+
 	data := record.Data()
 
 	if key.ID == nil {
@@ -96,11 +128,7 @@ func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal
 	} else {
 		docRef := keyToDocRef(key, tx.db.client)
 		if err = tx.tx.Create(docRef, data); err != nil {
-			if idGenerator == nil {
-				record.SetError(fmt.Errorf("failed to create record with provided ID: %w", err))
-			} else {
-				record.SetError(fmt.Errorf("failed to create record with manually generated ID: %w", err))
-			}
+			record.SetError(fmt.Errorf("failed to create record with manually generated ID: %w", err))
 			return
 		}
 	}
