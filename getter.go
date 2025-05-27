@@ -59,6 +59,9 @@ func existsByKey(
 ) {
 	_, err = getByKey(ctx, key, client, getByDocRef)
 	exists = err == nil
+	if dal.IsNotFound(err) {
+		err = nil
+	}
 	return
 }
 
