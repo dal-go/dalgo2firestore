@@ -10,11 +10,8 @@ cloud.google.com/go/firestore v1.18.0 h1:cuydCaLS7Vl2SatAeivXyhbhDEIR8BDmtn4egDh
 cloud.google.com/go/firestore v1.18.0/go.mod h1:5ye0v48PhseZBdcl0qbl3uttu7FIEwEYVaWm0UIEOEU=
 cloud.google.com/go/longrunning v0.6.7 h1:IGtfDWHhQCgCjwQjV9iiLnUta9LBCo8R9QmAFsS/PrE=
 cloud.google.com/go/longrunning v0.6.7/go.mod h1:EAFV3IZAKmM56TyiE6VAP3VoTzhZzySwI/YI1s/nRsY=
-github.com/dal-go/dalgo v0.20.0/go.mod h1:BoMNGwDE9FdjynV7xCn5f/GdVJxvfePwjsMldn+BhqA=
 github.com/dal-go/dalgo v0.21.0 h1:dtUi3x4LgZkg94vegDYSoBwxbsguyYoBFAS1rLaCSpA=
 github.com/dal-go/dalgo v0.21.0/go.mod h1:BoMNGwDE9FdjynV7xCn5f/GdVJxvfePwjsMldn+BhqA=
-github.com/dal-go/dalgo-end2end-tests v0.0.50 h1:Qe/EJQw4VlPF+nnQm1makKw7IKy4TMr4y0UcBoIY1NI=
-github.com/dal-go/dalgo-end2end-tests v0.0.50/go.mod h1:e4E7mwmO0M5D47LpMsolh5IqrjbVQ63LC2xySdf/kv8=
 github.com/dal-go/dalgo-end2end-tests v0.0.52 h1:h18oX3xLp/ivpWuhZH6awiSXU5/Vjie+WZfjfC+2PVQ=
 github.com/dal-go/dalgo-end2end-tests v0.0.52/go.mod h1:+WGsmSYW3P/Q7oS2UC+cMhNO8oI6KrBp6iNN8V4TpVs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
