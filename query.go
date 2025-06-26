@@ -12,9 +12,23 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		panic("client is a required parameter, got nil")
 	}
 
-	collectionPath := q.From().Path()
+	var query firestore.Query
 
-	query := client.Collection(collectionPath).Query
+	switch from := q.From().(type) {
+	case dal.CollectionRef:
+		collectionPath := from.Path()
+		query = client.Collection(collectionPath).Query
+	case *dal.CollectionRef:
+		collectionPath := from.Path()
+		query = client.Collection(collectionPath).Query
+	case dal.CollectionGroupRef:
+		query = client.CollectionGroup(from.Name()).Query
+	case *dal.CollectionGroupRef:
+		query = client.CollectionGroup(from.Name()).Query
+	default:
+		err = fmt.Errorf("%w: query.From() return unknonw type: %T", dal.ErrNotSupported, from)
+		return
+	}
 
 	if limit := q.Limit(); limit > 0 {
 		query.Limit(limit)
