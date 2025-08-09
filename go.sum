@@ -16,6 +16,8 @@ github.com/dal-go/dalgo-end2end-tests v0.0.59 h1:TLawABNt7L1PjTQ/nUi5My2IJ5GjCHv
 github.com/dal-go/dalgo-end2end-tests v0.0.59/go.mod h1:eHfs1NMyrnms/woTsjvcxNWWmqp+9Z+4O4kOb/6gmaI=
 github.com/dal-go/mocks4dalgo v0.3.5 h1:tiD51G+80en+dVUmdGdcjL8Qma0WvE87fsiGwoGONgM=
 github.com/dal-go/mocks4dalgo v0.3.5/go.mod h1:tR5RSfZNfPeT/W9HAvzqIRDOR5/aWmNpYi/up4B8UYE=
+github.com/dal-go/mocks4dalgo v0.3.6 h1:eTuK0Ug9NoWfMQWP/0yJT7Fyjwy2rLlbEd8sOAyx04I=
+github.com/dal-go/mocks4dalgo v0.3.6/go.mod h1:ZSfIqX3MwSyO7JEGQGPpopzMBpBIoN8Qah7VpT28vBI=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
