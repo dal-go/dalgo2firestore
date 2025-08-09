@@ -43,6 +43,10 @@ func (db database) Adapter() dal.Adapter {
 	return dal.NewAdapter("firestore", "v1.9.0")
 }
 
+func (db database) Schema() dal.Schema {
+	return nil
+}
+
 var _ dal.DB = (*database)(nil)
 
 func (db database) Upsert(_ context.Context, _ dal.Record) error {
