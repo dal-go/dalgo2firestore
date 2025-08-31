@@ -4,8 +4,8 @@ go 1.24.2
 
 require (
 	cloud.google.com/go/firestore v1.18.0
-	github.com/dal-go/dalgo v0.26.4
-	github.com/dal-go/dalgo-end2end-tests v0.0.62
+	github.com/dal-go/dalgo v0.26.5
+	github.com/dal-go/dalgo-end2end-tests v0.0.63
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.248.0
 	google.golang.org/grpc v1.75.0
@@ -30,7 +30,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.6 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/testify v1.11.0 // indirect
+	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/strongo/random v0.0.1 // indirect
 	github.com/strongo/validation v0.0.7 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
