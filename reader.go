@@ -1,14 +1,15 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
-	"google.golang.org/api/iterator"
 	"reflect"
 	"strconv"
+
+	"cloud.google.com/go/firestore"
+	"github.com/dal-go/dalgo/dal"
+	"google.golang.org/api/iterator"
 )
 
 var _ dal.Reader = (*firestoreReader)(nil)
@@ -24,39 +25,46 @@ func (d *firestoreReader) Close() error {
 }
 
 func (d *firestoreReader) Next() (record dal.Record, err error) {
-	if limit := d.query.Limit(); limit > 0 && d.i >= limit {
-		return nil, dal.ErrNoMoreRecords
-	}
-	if into := d.query.Into(); into == nil {
-		from := d.query.From()
-		record = dal.NewRecordWithIncompleteKey(from.Name(), d.query.IDKind(), nil)
-	} else {
-		record = into()
-	}
-	var doc *firestore.DocumentSnapshot
-	if doc, err = d.docIterator.Next(); err != nil {
-		if errors.Is(err, iterator.Done) {
-			err = fmt.Errorf("%w: %v", dal.ErrNoMoreRecords, err)
+	switch q := d.query.(type) {
+	case dal.StructuredQuery:
+		if limit := d.query.Limit(); limit > 0 && d.i >= limit {
+			return nil, dal.ErrNoMoreRecords
 		}
+		if into := q.Into(); into == nil {
+			from := q.From()
+			base := from.Base()
+			record = dal.NewRecordWithIncompleteKey(base.Name(), q.IDKind(), nil)
+		} else {
+			record = into()
+		}
+		var doc *firestore.DocumentSnapshot
+		if doc, err = d.docIterator.Next(); err != nil {
+			if errors.Is(err, iterator.Done) {
+				err = fmt.Errorf("%w: %v", dal.ErrNoMoreRecords, err)
+			}
+			return record, err
+		}
+		record.SetError(nil)
+		data := record.Data()
+		rd, isDataWrapper := data.(dal.DataWrapper)
+		if isDataWrapper {
+			if data = rd.Data(); data == nil {
+				return record, fmt.Errorf("DataWrapper.Data() returned nil")
+			}
+		}
+		if data != nil {
+			if err = doc.DataTo(data); err != nil {
+				return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)
+			}
+		}
+		k := record.Key()
+		k.ID, err = idFromFirestoreDocRef(doc.Ref, k.IDKind)
+		d.i++
 		return record, err
+	default:
+		return nil, fmt.Errorf("%w: Only dal.StructuredQuery is supported, got %T", dal.ErrNotSupported, d.query)
 	}
-	record.SetError(nil)
-	data := record.Data()
-	rd, isDataWrapper := data.(dal.DataWrapper)
-	if isDataWrapper {
-		if data = rd.Data(); data == nil {
-			return record, fmt.Errorf("DataWrapper.Data() returned nil")
-		}
-	}
-	if data != nil {
-		if err = doc.DataTo(data); err != nil {
-			return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)
-		}
-	}
-	k := record.Key()
-	k.ID, err = idFromFirestoreDocRef(doc.Ref, k.IDKind)
-	d.i++
-	return record, err
+
 }
 
 func (d *firestoreReader) Cursor() (string, error) {

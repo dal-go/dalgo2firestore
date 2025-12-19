@@ -1,9 +1,10 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
+
+	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
 )
 
@@ -14,42 +15,48 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 
 	var query firestore.Query
 
-	switch from := q.From().(type) {
-	case dal.CollectionRef:
-		collectionPath := from.Path()
-		query = client.Collection(collectionPath).Query
-	case *dal.CollectionRef:
-		collectionPath := from.Path()
-		query = client.Collection(collectionPath).Query
-	case dal.CollectionGroupRef:
-		query = client.CollectionGroup(from.Name()).Query
-	case *dal.CollectionGroupRef:
-		query = client.CollectionGroup(from.Name()).Query
+	switch q := q.(type) {
+	case dal.StructuredQuery:
+		switch from := q.From().Base().(type) {
+		case dal.CollectionRef:
+			collectionPath := from.Path()
+			query = client.Collection(collectionPath).Query
+		case *dal.CollectionRef:
+			collectionPath := from.Path()
+			query = client.Collection(collectionPath).Query
+		case dal.CollectionGroupRef:
+			query = client.CollectionGroup(from.Name()).Query
+		case *dal.CollectionGroupRef:
+			query = client.CollectionGroup(from.Name()).Query
+		default:
+			err = fmt.Errorf("%w: query.From() return unknonw type: %T", dal.ErrNotSupported, from)
+			return
+		}
+
+		if limit := q.Limit(); limit > 0 {
+			query.Limit(limit)
+		}
+		if offset := q.Offset(); offset > 0 {
+			query.Offset(offset)
+		}
+		if startFrom := q.StartFrom(); startFrom != "" {
+			query.StartAt(startFrom)
+		}
+		if where := q.Where(); where != nil {
+			if query, err = applyWhere(where, query); err != nil {
+				return
+			}
+		}
+		if orderBy := q.OrderBy(); orderBy != nil {
+			if query, err = applyOrderBy(orderBy, query); err != nil {
+				return
+			}
+		}
+		return query.Documents(c), err
 	default:
-		err = fmt.Errorf("%w: query.From() return unknonw type: %T", dal.ErrNotSupported, from)
+		err = fmt.Errorf("only dal.StructuredQueries are supported, got %T ", q)
 		return
 	}
-
-	if limit := q.Limit(); limit > 0 {
-		query.Limit(limit)
-	}
-	if offset := q.Offset(); offset > 0 {
-		query.Offset(offset)
-	}
-	if startFrom := q.StartFrom(); startFrom != "" {
-		query.StartAt(startFrom)
-	}
-	if where := q.Where(); where != nil {
-		if query, err = applyWhere(where, query); err != nil {
-			return
-		}
-	}
-	if orderBy := q.OrderBy(); orderBy != nil {
-		if query, err = applyOrderBy(orderBy, query); err != nil {
-			return
-		}
-	}
-	return query.Documents(c), err
 }
 
 func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Query, error) {
