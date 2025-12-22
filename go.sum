@@ -14,6 +14,8 @@ github.com/cncf/xds/go v0.0.0-20251022180443-0feb69152e9f h1:Y8xYupdHxryycyPlc9Y
 github.com/cncf/xds/go v0.0.0-20251022180443-0feb69152e9f/go.mod h1:HlzOvOjVBOfTGSRXRyY0OiCS/3J1akRGQQpRO/7zyF4=
 github.com/dal-go/dalgo v0.29.3 h1:RGep+caRNT1/t4cYsWW3pSSmmpeBWIewNPQ/pLSesyg=
 github.com/dal-go/dalgo v0.29.3/go.mod h1:5pxs6KCdhMjtfNiFCQZS9Qsupqphcr9cP01lwQ7vvUs=
+github.com/dal-go/dalgo v0.30.1 h1:aTX4sD7rBhm7yx/4WgUFeL+C4WQDOsuW2zazLjSHD+w=
+github.com/dal-go/dalgo v0.30.1/go.mod h1:5pxs6KCdhMjtfNiFCQZS9Qsupqphcr9cP01lwQ7vvUs=
 github.com/dal-go/dalgo-end2end-tests v0.0.66 h1:ANZx8TVH4x3nDxFvjgPuwPsM0xc4d6584YLfAu38CKE=
 github.com/dal-go/dalgo-end2end-tests v0.0.66/go.mod h1:MlJa9Rxrg88R4WIzN0R60zFreccA/F1q1EFzSq3rThE=
 github.com/dal-go/mocks4dalgo v0.3.11 h1:MLbZDs7blbmKRDaJbCIJkXoKl1kFkP9ZgsdujBIPV6w=
