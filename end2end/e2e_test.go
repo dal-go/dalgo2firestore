@@ -2,11 +2,7 @@ package end2end
 
 import (
 	"bytes"
-	"cloud.google.com/go/firestore"
 	"context"
-	end2end "github.com/dal-go/dalgo-end2end-tests"
-	"github.com/dal-go/dalgo2firestore"
-	"github.com/pkg/errors"
 	"io"
 	"log"
 	"os"
@@ -15,6 +11,11 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"cloud.google.com/go/firestore"
+	end2end "github.com/dal-go/dalgo-end2end-tests"
+	"github.com/dal-go/dalgo2firestore"
+	"github.com/pkg/errors"
 )
 
 func TestEndToEnd(t *testing.T) {

@@ -2,8 +2,9 @@ package dalgo2firestore
 
 import (
 	"context"
-	"github.com/dal-go/dalgo/dal"
 	"time"
+
+	"github.com/dal-go/dalgo/dal"
 )
 
 //type deleter struct {

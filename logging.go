@@ -2,9 +2,10 @@ package dalgo2firestore
 
 import (
 	"context"
-	"github.com/dal-go/dalgo/dal"
 	"strings"
 	"time"
+
+	"github.com/dal-go/dalgo/dal"
 )
 
 var Debugf func(ctx context.Context, format string, args ...interface{}) = nil

@@ -1,14 +1,15 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
+	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) (err error) {

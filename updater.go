@@ -1,13 +1,14 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
+	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
-	"strings"
 )
 
 //type updater struct {

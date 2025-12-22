@@ -1,8 +1,9 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+
+	"cloud.google.com/go/firestore"
 )
 
 var deleteByDocRef = func(ctx context.Context, docRef *firestore.DocumentRef) (result *firestore.WriteResult, err error) {

@@ -1,9 +1,10 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"testing"
+
+	"cloud.google.com/go/firestore"
 
 	"github.com/dal-go/dalgo/dal"
 )

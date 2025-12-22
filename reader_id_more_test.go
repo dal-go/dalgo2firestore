@@ -1,9 +1,10 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"reflect"
 	"testing"
+
+	"cloud.google.com/go/firestore"
 )
 
 func Test_idFromFirestoreDocRef_unsupported_kind(t *testing.T) {

@@ -1,11 +1,12 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
 	"log"
+
+	"cloud.google.com/go/firestore"
+	"github.com/dal-go/dalgo/dal"
 )
 
 func insert(ctx context.Context, db database, record dal.Record, create createFunc) (result *firestore.WriteResult, err error) {

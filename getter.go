@@ -1,13 +1,14 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
+	"time"
+
+	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 //type getter struct {

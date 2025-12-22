@@ -1,8 +1,9 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"testing"
+
+	"cloud.google.com/go/firestore"
 )
 
 func TestNewDatabase_panics(t *testing.T) {

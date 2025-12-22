@@ -3,8 +3,9 @@ package dalgo2firestore
 import (
 	"context"
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
 	"time"
+
+	"github.com/dal-go/dalgo/dal"
 )
 
 //type setter struct {

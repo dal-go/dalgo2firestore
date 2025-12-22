@@ -1,10 +1,11 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/dal-go/dalgo/dal"
 	"time"
+
+	"cloud.google.com/go/firestore"
+	"github.com/dal-go/dalgo/dal"
 )
 
 // NewDatabase creates new instance of dalgo interface to Firestore

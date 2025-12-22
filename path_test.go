@@ -1,9 +1,10 @@
 package dalgo2firestore
 
 import (
-	"github.com/dal-go/dalgo/dal"
 	"reflect"
 	"testing"
+
+	"github.com/dal-go/dalgo/dal"
 )
 
 func TestPathFromKey(t *testing.T) {
