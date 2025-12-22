@@ -100,13 +100,13 @@ func idFromFirestoreDocRef(key *firestore.DocumentRef, idKind reflect.Kind) (id 
 		case reflect.Int64:
 			return id, nil
 		case reflect.Int:
-			return int(id), nil
+			return id, nil
 		case reflect.Int32:
-			return int(id), nil
+			return id, nil
 		case reflect.Int16:
-			return int(id), nil
+			return id, nil
 		case reflect.Int8:
-			return int(id), nil
+			return id, nil
 		default:
 			return key, fmt.Errorf("unsupported id type: %T=%v", idKind, idKind)
 		}

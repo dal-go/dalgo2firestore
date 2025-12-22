@@ -1,9 +1,10 @@
 package dalgo2firestore
 
 import (
-	"cloud.google.com/go/firestore"
 	"fmt"
 	"testing"
+
+	"cloud.google.com/go/firestore"
 
 	"github.com/dal-go/dalgo/dal"
 	"github.com/dal-go/dalgo/update"
@@ -16,7 +17,7 @@ type mockUpdate struct {
 }
 
 func (m mockUpdate) FieldName() string           { return m.name }
-func (m mockUpdate) FieldPath() update.FieldPath { return update.FieldPath(m.path) }
+func (m mockUpdate) FieldPath() update.FieldPath { return m.path }
 func (m mockUpdate) Value() any                  { return m.val }
 
 func Test_getFirestoreUpdate_Delete(t *testing.T) {
