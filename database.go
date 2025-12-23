@@ -16,13 +16,14 @@ func NewDatabase(id string, client *firestore.Client) (db dal.DB) {
 	if client == nil {
 		panic("client is a required field, got nil")
 	}
-	var getReader = func(c context.Context, query dal.Query) (reader dal.Reader, err error) {
-		return newFirestoreReader(c, client, query)
-	}
 	return &database{
-		id:            id,
-		client:        client,
-		QueryExecutor: dal.NewQueryExecutor(getReader),
+		id:     id,
+		client: client,
+		QueryExecutor: queryExecutor{
+			getRecordsReader: func(c context.Context, query dal.Query) (reader dal.RecordsReader, err error) {
+				return newFirestoreReader(c, client, query)
+			},
+		},
 	}
 }
 

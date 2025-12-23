@@ -30,12 +30,13 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 		if limit := d.query.Limit(); limit > 0 && d.i >= limit {
 			return nil, dal.ErrNoMoreRecords
 		}
-		if into := q.Into(); into == nil {
+		if into := q.IntoRecord; into != nil {
+			record = into()
+		}
+		if record == nil {
 			from := q.From()
 			base := from.Base()
 			record = dal.NewRecordWithIncompleteKey(base.Name(), q.IDKind(), nil)
-		} else {
-			record = into()
 		}
 		var doc *firestore.DocumentSnapshot
 		if doc, err = d.docIterator.Next(); err != nil {
