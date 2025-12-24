@@ -17,6 +17,6 @@ func (q queryExecutor) GetRecordsReader(ctx context.Context, query dal.Query) (d
 	return q.getRecordsReader(ctx, query)
 }
 
-func (q queryExecutor) GetRecordsetReader(_ context.Context, _ dal.Query, _ *recordset.Recordset) (dal.RecordsetReader, error) {
+func (q queryExecutor) GetRecordsetReader(_ context.Context, _ dal.Query, _ recordset.Recordset) (dal.RecordsetReader, error) {
 	return nil, dal.ErrNotImplementedYet
 }
