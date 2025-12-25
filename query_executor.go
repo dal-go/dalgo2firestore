@@ -13,10 +13,10 @@ type queryExecutor struct {
 	getRecordsReader func(c context.Context, query dal.Query) (reader dal.RecordsReader, err error)
 }
 
-func (q queryExecutor) GetRecordsReader(ctx context.Context, query dal.Query) (dal.RecordsReader, error) {
+func (q queryExecutor) ExecuteQueryToRecordsReader(ctx context.Context, query dal.Query) (dal.RecordsReader, error) {
 	return q.getRecordsReader(ctx, query)
 }
 
-func (q queryExecutor) GetRecordsetReader(_ context.Context, _ dal.Query, _ recordset.Recordset) (dal.RecordsetReader, error) {
+func (q queryExecutor) ExecuteQueryToRecordsetReader(_ context.Context, _ dal.Query, _ ...recordset.Option) (dal.RecordsetReader, error) {
 	return nil, dal.ErrNotImplementedYet
 }
