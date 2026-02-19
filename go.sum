@@ -26,6 +26,8 @@ github.com/cncf/xds/go v0.0.0-20251022180443-0feb69152e9f h1:Y8xYupdHxryycyPlc9Y
 github.com/cncf/xds/go v0.0.0-20251022180443-0feb69152e9f/go.mod h1:HlzOvOjVBOfTGSRXRyY0OiCS/3J1akRGQQpRO/7zyF4=
 github.com/dal-go/dalgo v0.41.1 h1:M3j/oMqE3MQD2l170X04IZBn2MHenrMKL76ma7IXVYM=
 github.com/dal-go/dalgo v0.41.1/go.mod h1:c9vfeYEwt1Emqa9sntGvZlFSLWOfyRAcngefNrk3AoI=
+github.com/dal-go/dalgo v0.41.3 h1:CGalpahqyQ3D5xTD85jwLnsZ+H2m9kSg7BCxsu4Wljk=
+github.com/dal-go/dalgo v0.41.3/go.mod h1:UsfnN3vdZ58s3gGRHNadEiqGheo8yqirEHUWTxGR8a0=
 github.com/dal-go/dalgo-end2end-tests v0.0.72 h1:vuVyGA39kIeMJ6dXxnUlXJdDYYMr+uZNAYg0mjM6Pfk=
 github.com/dal-go/dalgo-end2end-tests v0.0.72/go.mod h1:KVqdQqnsscdZmLPvhIT1c+cZRDfSLOuOmOxUIVCVaPc=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -136,6 +138,8 @@ google.golang.org/api v0.265.0 h1:FZvfUdI8nfmuNrE34aOWFPmLC+qRBEiNm3JdivTvAAU=
 google.golang.org/api v0.265.0/go.mod h1:uAvfEl3SLUj/7n6k+lJutcswVojHPp2Sp08jWCu8hLY=
 google.golang.org/api v0.266.0 h1:hco+oNCf9y7DmLeAtHJi/uBAY7n/7XC9mZPxu1ROiyk=
 google.golang.org/api v0.266.0/go.mod h1:Jzc0+ZfLnyvXma3UtaTl023TdhZu6OMBP9tJ+0EmFD0=
+google.golang.org/api v0.267.0 h1:w+vfWPMPYeRs8qH1aYYsFX68jMls5acWl/jocfLomwE=
+google.golang.org/api v0.267.0/go.mod h1:Jzc0+ZfLnyvXma3UtaTl023TdhZu6OMBP9tJ+0EmFD0=
 google.golang.org/genproto v0.0.0-20251222181119-0a764e51fe1b h1:kqShdsddZrS6q+DGBCA73CzHsKDu5vW4qw78tFnbVvY=
 google.golang.org/genproto v0.0.0-20251222181119-0a764e51fe1b/go.mod h1:gw1DtiPCt5uh/HV9STVEeaO00S5ATsJiJ2LsZV8lcDI=
 google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 h1:VQZ/yAbAtjkHgH80teYd2em3xtIkkHd7ZhqfH2N9CsM=
