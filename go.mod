@@ -4,10 +4,10 @@ go 1.24.2
 
 require (
 	cloud.google.com/go/firestore v1.21.0
-	github.com/dal-go/dalgo v0.41.1
+	github.com/dal-go/dalgo v0.41.3
 	github.com/dal-go/dalgo-end2end-tests v0.0.72
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.266.0
+	google.golang.org/api v0.267.0
 	google.golang.org/grpc v1.79.1
 )
 
