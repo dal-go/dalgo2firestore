@@ -4,8 +4,8 @@ go 1.25.0
 
 require (
 	cloud.google.com/go/firestore v1.21.0
-	github.com/dal-go/dalgo v0.41.3
-	github.com/dal-go/dalgo-end2end-tests v0.0.73
+	github.com/dal-go/dalgo v0.41.5
+	github.com/dal-go/dalgo-end2end-tests v0.0.74
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.269.0
 	google.golang.org/grpc v1.79.1
@@ -21,7 +21,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cloud.google.com/go/longrunning v0.8.0 // indirect
-	github.com/RoaringBitmap/roaring/v2 v2.14.4 // indirect
+	github.com/RoaringBitmap/roaring/v2 v2.14.5 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
