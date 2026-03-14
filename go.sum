@@ -46,6 +46,8 @@ github.com/dal-go/dalgo-end2end-tests v0.0.74 h1:f+eosu02M4BQWSj4LrQK1m5Ba1uYQtd
 github.com/dal-go/dalgo-end2end-tests v0.0.74/go.mod h1:zweDUZQBspCjkb45cI1w+u3cPHjv3dw+boSeH2b4Lpg=
 github.com/dal-go/dalgo-end2end-tests v0.0.76 h1:CNx2+VDkt2wUzEoeAuY0oy1xms5jrq3HcxKAnyxcpek=
 github.com/dal-go/dalgo-end2end-tests v0.0.76/go.mod h1:m/x1vRqj8V6Kom1E9OyNdCbPzi6WuMWHvaSfO9ewnYY=
+github.com/dal-go/dalgo-end2end-tests v0.0.77 h1:jpow9IXgWbQ4svAoMGqkLB9RV0d+RGeI74Q1EcOEkz8=
+github.com/dal-go/dalgo-end2end-tests v0.0.77/go.mod h1:nSi+ZFBShlRmSbd3U2VohcCcRJWXoyMmjc5unLk+apk=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/envoyproxy/go-control-plane v0.13.5-0.20251024222203-75eaa193e329 h1:K+fnvUM0VZ7ZFJf0n4L/BRlnsb9pL/GuDG6FqaH+PwM=
