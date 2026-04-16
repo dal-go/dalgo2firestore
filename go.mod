@@ -3,11 +3,11 @@ module github.com/dal-go/dalgo2firestore
 go 1.25.0
 
 require (
-	cloud.google.com/go/firestore v1.21.0
-	github.com/dal-go/dalgo v0.41.11
-	github.com/dal-go/dalgo-end2end-tests v0.0.82
+	cloud.google.com/go/firestore v1.22.0
+	github.com/dal-go/dalgo v0.41.12
+	github.com/dal-go/dalgo-end2end-tests v0.0.84
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.275.0
+	google.golang.org/api v0.276.0
 	google.golang.org/grpc v1.80.0
 )
 
@@ -20,8 +20,8 @@ require (
 	cloud.google.com/go/auth v0.20.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
-	cloud.google.com/go/longrunning v0.8.0 // indirect
-	github.com/RoaringBitmap/roaring/v2 v2.16.2 // indirect
+	cloud.google.com/go/longrunning v0.9.0 // indirect
+	github.com/RoaringBitmap/roaring/v2 v2.17.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -50,7 +50,7 @@ require (
 	golang.org/x/text v0.35.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/genproto v0.0.0-20260319201613-d00831a3d3e7 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260319201613-d00831a3d3e7 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
