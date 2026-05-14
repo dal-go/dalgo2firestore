@@ -32,6 +32,8 @@ var _ dal.DB = (*database)(nil)
 
 // database implements dal.Database
 type database struct {
+	// ConcurrencyAvailable: Firestore is a server-side multi-tenant store that supports concurrent connections.
+	dal.ConcurrencyAvailable
 	id     string
 	client *firestore.Client
 	dal.QueryExecutor
