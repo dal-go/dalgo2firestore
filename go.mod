@@ -4,16 +4,13 @@ go 1.25.8
 
 require (
 	cloud.google.com/go/firestore v1.22.0
-	github.com/dal-go/dalgo v0.43.3
-	github.com/dal-go/dalgo-end2end-tests v0.0.92
+	github.com/dal-go/dalgo v0.44.2
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.282.0
 	google.golang.org/grpc v1.81.1
 )
 
 //replace github.com/dal-go/dalgo => ../dalgo
-
-//replace github.com/dal-go/dalgo-end2end-tests => ../dalgo-end2end-tests
 
 require (
 	cloud.google.com/go v0.123.0 // indirect
