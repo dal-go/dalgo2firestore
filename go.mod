@@ -4,7 +4,7 @@ go 1.25.8
 
 require (
 	cloud.google.com/go/firestore v1.22.0
-	github.com/dal-go/dalgo v0.44.2
+	github.com/dal-go/dalgo v0.46.0
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.283.0
 	google.golang.org/grpc v1.81.1
