@@ -55,3 +55,62 @@ func Test_DB_InsertMulti_uses_createNonTransactional(t *testing.T) {
 		t.Fatalf("expected %d calls, got %d", len(records), called)
 	}
 }
+
+func Test_DB_Insert_honors_WithAdapterGeneratedID(t *testing.T) {
+	createCalls := stubCreateNonTransactional(t, nil)
+
+	origDebugf := Debugf
+	Debugf = func(_ context.Context, _ string, _ ...interface{}) {}
+	defer func() { Debugf = origDebugf }()
+
+	db := database{id: "db", client: &firestore.Client{}}
+	rec := newIncompleteRecord()
+	if err := db.Insert(context.Background(), rec, dal.WithAdapterGeneratedID()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if id, ok := rec.Key().ID.(string); !ok || len(id) != 20 {
+		t.Fatalf("expected adapter generated 20-char ID, got: %v", rec.Key().ID)
+	}
+	if *createCalls != 1 {
+		t.Fatalf("expected 1 create call, got %d", *createCalls)
+	}
+}
+
+func Test_DB_Insert_honors_WithRandomStringKey(t *testing.T) {
+	stubGetByDocRef(t, []error{errStubNotFound})
+	createCalls := stubCreateNonTransactional(t, nil)
+
+	db := database{id: "db", client: &firestore.Client{}}
+	rec := newIncompleteRecord()
+	if err := db.Insert(context.Background(), rec, dal.WithRandomStringKey(12, 5)); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if id, ok := rec.Key().ID.(string); !ok || len(id) != 12 {
+		t.Fatalf("expected generated 12-char ID, got: %v", rec.Key().ID)
+	}
+	if *createCalls != 1 {
+		t.Fatalf("expected 1 create call, got %d", *createCalls)
+	}
+}
+
+func Test_DB_InsertMulti_honors_WithAdapterGeneratedID(t *testing.T) {
+	createCalls := stubCreateNonTransactional(t, nil)
+
+	origDebugf := Debugf
+	Debugf = func(_ context.Context, _ string, _ ...interface{}) {}
+	defer func() { Debugf = origDebugf }()
+
+	db := database{id: "db", client: &firestore.Client{}}
+	records := []dal.Record{newIncompleteRecord(), newIncompleteRecord()}
+	if err := db.InsertMulti(context.Background(), records, dal.WithAdapterGeneratedID()); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	for i, rec := range records {
+		if id, ok := rec.Key().ID.(string); !ok || len(id) != 20 {
+			t.Fatalf("expected record %d to get adapter generated 20-char ID, got: %v", i, rec.Key().ID)
+		}
+	}
+	if *createCalls != len(records) {
+		t.Fatalf("expected %d create calls, got %d", len(records), *createCalls)
+	}
+}

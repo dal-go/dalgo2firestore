@@ -71,13 +71,29 @@ func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Q
 	return q, nil
 }
 
+// dalOperator2firestore maps dalgo comparison operators to the operator strings
+// accepted by the Firestore Go SDK. Most dalgo operators use the same spelling,
+// but dal.In is "In" while Firestore expects "in".
+var dalOperator2firestore = map[dal.Operator]string{
+	dal.Equal:          "==",
+	dal.GreaterThen:    ">",
+	dal.GreaterOrEqual: ">=",
+	dal.LessThen:       "<",
+	dal.LessOrEqual:    "<=",
+	dal.In:             "in",
+}
+
 func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error) {
 	var applyComparison = func(comparison dal.Comparison) error {
 		switch left := comparison.Left.(type) {
 		case dal.FieldRef:
 			switch right := comparison.Right.(type) {
 			case dal.Constant:
-				q = q.Where(left.Name(), string(comparison.Operator), right.Value)
+				operator, ok := dalOperator2firestore[comparison.Operator]
+				if !ok {
+					return fmt.Errorf("%w: operator %q is not supported by Firestore", dal.ErrNotSupported, comparison.Operator)
+				}
+				q = q.Where(left.Name(), operator, right.Value)
 			case dal.Array:
 				q = q.Where(left.Name(), "array-contains-any", right.Value)
 			default:
@@ -92,6 +108,8 @@ func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error)
 				default:
 					return fmt.Errorf("only IN operator is supported for constant as left operand, got: %v", comparison.Operator)
 				}
+			default:
+				return fmt.Errorf("only FieldRef is supported as right operand of a constant, got: %T", right)
 			}
 		default:
 			return fmt.Errorf("only FieldRef are supported as left operand, got: %T", left)

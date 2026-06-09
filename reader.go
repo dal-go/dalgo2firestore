@@ -33,7 +33,15 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 		if record = q.IntoRecord(); record == nil {
 			from := q.From()
 			base := from.Base()
-			record = dal.NewRecordWithIncompleteKey(base.Name(), q.IDKind(), nil)
+			idKind := q.IDKind()
+			if idKind == reflect.Invalid {
+				// Queries without IntoRecord and without an ID kind (e.g. column
+				// projection or GROUP BY aggregation returning map-shaped records)
+				// are not implemented by this adapter. Report it per the dalgo
+				// capability contract instead of panicking in dal.NewRecordWithIncompleteKey.
+				return nil, fmt.Errorf("%w: query without IntoRecord and ID kind (e.g. column projection or aggregation) is not supported by dalgo2firestore", dal.ErrNotSupported)
+			}
+			record = dal.NewRecordWithIncompleteKey(base.Name(), idKind, nil)
 		}
 		var doc *firestore.DocumentSnapshot
 		if doc, err = d.docIterator.Next(); err != nil {
