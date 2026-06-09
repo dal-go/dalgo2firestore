@@ -63,13 +63,7 @@ func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.In
 		started = time.Now()
 	}
 	options := dal.NewInsertOptions(opts...)
-	generateID := options.IDGenerator()
-	if generateID != nil {
-		if err := generateID(ctx, record); err != nil {
-			return err
-		}
-	}
-	_, err = insert(ctx, db, record, createNonTransactional)
+	err = insertWithOptions(ctx, db, record, createNonTransactional, options)
 	if Debugf != nil {
 		Debugf(ctx, "db.Insert(%v) completed in %v, err: %v", record.Key(), time.Since(started), err)
 	}
@@ -81,7 +75,7 @@ func (db database) InsertMulti(ctx context.Context, records []dal.Record, opts .
 	if Debugf != nil {
 		started = time.Now()
 	}
-	_, err = insertMulti(ctx, db, records, createNonTransactional, opts...)
+	err = insertMulti(ctx, db, records, createNonTransactional, opts...)
 	logMultiRecords(ctx, "db.InsertMulti", records, started, err)
 	return err
 }

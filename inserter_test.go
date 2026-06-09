@@ -111,7 +111,7 @@ func Test_insertMulti_basic(t *testing.T) {
 			dal.NewRecordWithData(dal.NewKeyWithID("c", "1"), testData{}),
 			dal.NewRecordWithData(dal.NewKeyWithID("c", "2"), testData{}),
 		}
-		if _, err := insertMulti(context.Background(), db, records, createNonTransactional); err != nil {
+		if err := insertMulti(context.Background(), db, records, createNonTransactional); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 		if count != len(records) {
