@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.22.0
 	github.com/dal-go/dalgo v0.62.7
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.285.0
+	google.golang.org/api v0.286.0
 	google.golang.org/grpc v1.81.1
 )
 
