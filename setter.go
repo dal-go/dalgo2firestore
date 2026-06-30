@@ -37,6 +37,7 @@ func (db database) Set(ctx context.Context, record dal.Record) (err error) {
 	if docRef == nil {
 		return fmt.Errorf("keyToDocRef is nil for key=%v", key)
 	}
+	record.SetError(nil) // see transaction.Set: avoid record.Data() panic on a fresh record
 	data := record.Data()
 	_, err = setFirestore(ctx, docRef, data)
 	return err
@@ -51,6 +52,7 @@ func (db database) SetMulti(ctx context.Context, records []dal.Record) (err erro
 	for _, record := range records {
 		key := record.Key()
 		docRef := keyToDocRef(key, db.client)
+		record.SetError(nil) // see transaction.Set: avoid record.Data() panic on a fresh record
 		data := record.Data()
 		if _, err = batch.Set(docRef, data); err != nil {
 			break
