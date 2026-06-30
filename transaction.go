@@ -124,6 +124,11 @@ func (tx transaction) Set(ctx context.Context, record dal.Record) (err error) {
 	}
 	key := record.Key()
 	dr := keyToDocRef(key, tx.db.client)
+	record.SetError(nil) // Mark record as not having an error so record.Data()
+	// does not panic on a freshly built (NewRecordWithData) record whose error
+	// is still nil. Mirrors SetMulti below and the insert() path; without it
+	// Set panics with "an attempt to access record data before it was retrieved
+	// from database and SetError(error) called".
 	err = tx.tx.Set(dr, record.Data())
 	if Debugf != nil {
 		Debugf(ctx, "tx.Set(%v) completed in %v, err: %v", key, time.Since(started), err)
