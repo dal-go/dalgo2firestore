@@ -126,6 +126,15 @@ func docSnapshotToRecord(
 	}
 	record.SetError(nil) // !Important - we need to setFirestore error to nil before accessing record.Data()
 	recData := record.Data()
+	// firestore.DocumentSnapshot.DataTo requires a pointer target, but the
+	// dalgo convention (dalgo2memory, dalgo2ingitdb) also allows a bare
+	// map[string]any populated via reference semantics — fill it directly.
+	if m, ok := recData.(map[string]any); ok {
+		for k, v := range docSnapshot.Data() {
+			m[k] = v
+		}
+		return nil
+	}
 	if err := dataTo(docSnapshot, recData); err != nil {
 		if status.Code(err) == codes.NotFound {
 			key := record.Key()

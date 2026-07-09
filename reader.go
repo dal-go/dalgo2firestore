@@ -58,7 +58,14 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 				return record, fmt.Errorf("DataWrapper.Data() returned nil")
 			}
 		}
-		if data != nil {
+		if m, isMap := data.(map[string]any); isMap {
+			// DataTo requires a pointer target; a bare map[string]any is
+			// filled via reference semantics (dalgo convention, matching
+			// dalgo2memory and dalgo2ingitdb readers).
+			for key, value := range doc.Data() {
+				m[key] = value
+			}
+		} else if data != nil {
 			if err = doc.DataTo(data); err != nil {
 				return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)
 			}
