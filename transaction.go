@@ -59,6 +59,13 @@ type transaction struct {
 	dal.QueryExecutor
 }
 
+// setInFirestoreTransaction is a seam for tests. Transaction.Set only queues a
+// write locally; the enclosing Client.RunTransaction performs the commit and
+// reports any commit error to its caller.
+var setInFirestoreTransaction = func(tx *firestore.Transaction, doc *firestore.DocumentRef, data interface{}) error {
+	return tx.Set(doc, data)
+}
+
 func (tx transaction) Close(_ context.Context) error {
 	panic("TODO: implement or remove me")
 }
@@ -203,14 +210,18 @@ func (tx transaction) SetMulti(ctx context.Context, records []dal.Record) (err e
 	for _, record := range records { // TODO: can we do this in parallel?
 		doc := keyToDocRef(record.Key(), tx.db.client)
 		record.SetError(nil) // Mark record as not having an error
-		_, err = doc.Set(ctx, record.Data())
+		// Queue this write on the active Firestore transaction. Calling
+		// DocumentRef.Set here would perform an independent write outside the
+		// transaction, so an aborted transaction could be falsely reported as a
+		// successful DAL transaction.
+		err = setInFirestoreTransaction(tx.tx, doc, record.Data())
 		if err != nil {
 			record.SetError(err)
 			break
 		}
 	}
 	logMultiRecords(ctx, "tx.SetMulti", records, started, err)
-	return nil
+	return err
 }
 
 func (tx transaction) DeleteMulti(ctx context.Context, keys []*dal.Key) (err error) {
