@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
+	dalrecord "github.com/dal-go/record"
 )
 
 func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) (err error) {
@@ -78,7 +79,7 @@ func (tx transaction) Options() dal.TransactionOptions {
 	return tx.options
 }
 
-func (tx transaction) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) (err error) {
+func (tx transaction) Insert(ctx context.Context, record dalrecord.Record, opts ...dal.InsertOption) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
@@ -108,7 +109,7 @@ func (tx transaction) create(_ context.Context, docRef *firestore.DocumentRef, d
 	return nil, tx.tx.Create(docRef, data)
 }
 
-func (tx transaction) Upsert(ctx context.Context, record dal.Record) error {
+func (tx transaction) Upsert(ctx context.Context, record dalrecord.Record) error {
 	return tx.Set(ctx, record)
 }
 
@@ -116,15 +117,15 @@ func (tx transaction) getByDocRef(_ context.Context, dr *firestore.DocumentRef) 
 	return tx.tx.Get(dr)
 }
 
-func (tx transaction) Get(ctx context.Context, record dal.Record) error {
+func (tx transaction) Get(ctx context.Context, record dalrecord.Record) error {
 	return getAndUnmarshal(ctx, record, tx.db.client, tx.getByDocRef)
 }
 
-func (tx transaction) Exists(ctx context.Context, key *dal.Key) (exists bool, err error) {
+func (tx transaction) Exists(ctx context.Context, key *dalrecord.Key) (exists bool, err error) {
 	return existsByKey(ctx, key, tx.db.client, tx.getByDocRef)
 }
 
-func (tx transaction) Set(ctx context.Context, record dal.Record) (err error) {
+func (tx transaction) Set(ctx context.Context, record dalrecord.Record) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
@@ -143,7 +144,7 @@ func (tx transaction) Set(ctx context.Context, record dal.Record) (err error) {
 	return err
 }
 
-func (tx transaction) Delete(ctx context.Context, key *dal.Key) (err error) {
+func (tx transaction) Delete(ctx context.Context, key *dalrecord.Key) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
@@ -156,7 +157,7 @@ func (tx transaction) Delete(ctx context.Context, key *dal.Key) (err error) {
 	return
 }
 
-func (tx transaction) GetMulti(ctx context.Context, records []dal.Record) error {
+func (tx transaction) GetMulti(ctx context.Context, records []dalrecord.Record) error {
 	return getMulti(ctx, records, "tx", tx.db.client,
 		func(_ context.Context, drs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error) {
 			return tx.tx.GetAll(drs)
@@ -166,7 +167,7 @@ func (tx transaction) GetMulti(ctx context.Context, records []dal.Record) error 
 
 func getMulti(
 	ctx context.Context,
-	records []dal.Record,
+	records []dalrecord.Record,
 	caller string,
 	client *firestore.Client,
 	getAll func(ctx context.Context, drs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error),
@@ -202,7 +203,7 @@ func getMulti(
 
 }
 
-func (tx transaction) SetMulti(ctx context.Context, records []dal.Record) (err error) {
+func (tx transaction) SetMulti(ctx context.Context, records []dalrecord.Record) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
@@ -224,7 +225,7 @@ func (tx transaction) SetMulti(ctx context.Context, records []dal.Record) (err e
 	return err
 }
 
-func (tx transaction) DeleteMulti(ctx context.Context, keys []*dal.Key) (err error) {
+func (tx transaction) DeleteMulti(ctx context.Context, keys []*dalrecord.Key) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
@@ -240,7 +241,7 @@ func (tx transaction) DeleteMulti(ctx context.Context, keys []*dal.Key) (err err
 	return nil
 }
 
-func (tx transaction) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
+func (tx transaction) InsertMulti(ctx context.Context, records []dalrecord.Record, opts ...dal.InsertOption) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()

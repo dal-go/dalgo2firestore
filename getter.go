@@ -6,6 +6,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
+	dalrecord "github.com/dal-go/record"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -37,7 +38,7 @@ var dataTo = func(ds *firestore.DocumentSnapshot, p interface{}) error {
 
 func getByKey(
 	ctx context.Context,
-	key *dal.Key,
+	key *dalrecord.Key,
 	client *firestore.Client,
 	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
 ) (
@@ -52,7 +53,7 @@ func getByKey(
 
 func existsByKey(
 	ctx context.Context,
-	key *dal.Key,
+	key *dalrecord.Key,
 	client *firestore.Client,
 	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
 ) (
@@ -60,7 +61,7 @@ func existsByKey(
 ) {
 	_, err = getByKey(ctx, key, client, getByDocRef)
 	exists = err == nil
-	if dal.IsNotFound(err) {
+	if dalrecord.IsNotFound(err) {
 		err = nil
 	}
 	return
@@ -68,7 +69,7 @@ func existsByKey(
 
 func getAndUnmarshal(
 	ctx context.Context,
-	record dal.Record,
+	record dalrecord.Record,
 	client *firestore.Client,
 	getByDocRef func(ctx context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error),
 ) (err error) {
@@ -95,15 +96,15 @@ func getAndUnmarshal(
 	return
 }
 
-func (db database) Get(ctx context.Context, record dal.Record) error {
+func (db database) Get(ctx context.Context, record dalrecord.Record) error {
 	return getAndUnmarshal(ctx, record, db.client, getByDocRef)
 }
 
-func (db database) Exists(ctx context.Context, key *dal.Key) (exists bool, err error) {
+func (db database) Exists(ctx context.Context, key *dalrecord.Key) (exists bool, err error) {
 	return existsByKey(ctx, key, db.client, getByDocRef)
 }
 
-func handleGetByKeyError(key *dal.Key, err error) error {
+func handleGetByKeyError(key *dalrecord.Key, err error) error {
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			err = dal.NewErrNotFoundByKey(key, err)
@@ -115,7 +116,7 @@ func handleGetByKeyError(key *dal.Key, err error) error {
 
 func docSnapshotToRecord(
 	docSnapshot *firestore.DocumentSnapshot,
-	record dal.Record,
+	record dalrecord.Record,
 	dataTo func(ds *firestore.DocumentSnapshot, p interface{}) error,
 ) error {
 	if !docSnapshot.Exists() {
@@ -147,6 +148,6 @@ func docSnapshotToRecord(
 	return nil
 }
 
-func (db database) GetMulti(ctx context.Context, records []dal.Record) error {
+func (db database) GetMulti(ctx context.Context, records []dalrecord.Record) error {
 	return getMulti(ctx, records, "db", db.client, db.client.GetAll)
 }

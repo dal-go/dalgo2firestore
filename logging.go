@@ -2,15 +2,14 @@ package dalgo2firestore
 
 import (
 	"context"
+	"github.com/dal-go/record"
 	"strings"
 	"time"
-
-	"github.com/dal-go/dalgo/dal"
 )
 
 var Debugf func(ctx context.Context, format string, args ...interface{}) = nil
 
-func logMultiRecords(ctx context.Context, operation string, records []dal.Record, started time.Time, err error) {
+func logMultiRecords(ctx context.Context, operation string, records []record.Record, started time.Time, err error) {
 	if Debugf != nil {
 		keys := make([]string, 0, len(records))
 		for _, r := range records {
@@ -20,7 +19,7 @@ func logMultiRecords(ctx context.Context, operation string, records []dal.Record
 	}
 }
 
-func logMultiKeys(ctx context.Context, operation string, keys []*dal.Key, started time.Time, err error) {
+func logMultiKeys(ctx context.Context, operation string, keys []*record.Key, started time.Time, err error) {
 	if Debugf != nil {
 		s := make([]string, 0, len(keys))
 		for _, k := range keys {

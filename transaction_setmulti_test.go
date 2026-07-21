@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"cloud.google.com/go/firestore"
-	"github.com/dal-go/dalgo/dal"
+	dalrecord "github.com/dal-go/record"
 )
 
 func TestTransactionSetMulti_QueuesWritesAndPropagatesError(t *testing.T) {
@@ -17,7 +17,7 @@ func TestTransactionSetMulti_QueuesWritesAndPropagatesError(t *testing.T) {
 		setInFirestoreTransaction = originalSet
 	}()
 
-	keyToDocRef = func(_ *dal.Key, _ *firestore.Client) *firestore.DocumentRef {
+	keyToDocRef = func(_ *dalrecord.Key, _ *firestore.Client) *firestore.DocumentRef {
 		return &firestore.DocumentRef{ID: "contact"}
 	}
 	writeErr := errors.New("transaction write failed")
@@ -27,9 +27,9 @@ func TestTransactionSetMulti_QueuesWritesAndPropagatesError(t *testing.T) {
 		return writeErr
 	}
 
-	record := dal.NewRecordWithData(dal.NewKeyWithID("contacts", "contact"), &struct{ Name string }{Name: "Andrey"})
+	record := dalrecord.NewRecordWithData(dalrecord.NewKeyWithID("contacts", "contact"), &struct{ Name string }{Name: "Andrey"})
 	tx := transaction{db: database{client: &firestore.Client{}}}
-	err := tx.SetMulti(context.Background(), []dal.Record{record})
+	err := tx.SetMulti(context.Background(), []dalrecord.Record{record})
 
 	if !errors.Is(err, writeErr) {
 		t.Fatalf("SetMulti() error = %v, want %v", err, writeErr)

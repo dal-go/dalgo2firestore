@@ -7,6 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/record"
 )
 
 func Test_DB_Insert_uses_createNonTransactional(t *testing.T) {
@@ -14,7 +15,9 @@ func Test_DB_Insert_uses_createNonTransactional(t *testing.T) {
 	origCreate := createNonTransactional
 	defer func() { keyToDocRef = origKeyToDocRef; createNonTransactional = origCreate }()
 
-	keyToDocRef = func(_ *dal.Key, _ *firestore.Client) *firestore.DocumentRef { return &firestore.DocumentRef{ID: "x"} }
+	keyToDocRef = func(_ *record.Key, _ *firestore.Client) *firestore.DocumentRef {
+		return &firestore.DocumentRef{ID: "x"}
+	}
 	called := 0
 	createNonTransactional = func(ctx context.Context, _ *firestore.DocumentRef, _ interface{}) (*firestore.WriteResult, error) {
 		called++
@@ -22,7 +25,7 @@ func Test_DB_Insert_uses_createNonTransactional(t *testing.T) {
 	}
 
 	db := database{id: "db", client: &firestore.Client{}}
-	rec := dal.NewRecordWithData(dal.NewKeyWithID("c", "1"), struct{}{})
+	rec := record.NewRecordWithData(record.NewKeyWithID("c", "1"), struct{}{})
 	if err := db.Insert(context.Background(), rec); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -36,7 +39,9 @@ func Test_DB_InsertMulti_uses_createNonTransactional(t *testing.T) {
 	origCreate := createNonTransactional
 	defer func() { keyToDocRef = origKeyToDocRef; createNonTransactional = origCreate }()
 
-	keyToDocRef = func(_ *dal.Key, _ *firestore.Client) *firestore.DocumentRef { return &firestore.DocumentRef{ID: "x"} }
+	keyToDocRef = func(_ *record.Key, _ *firestore.Client) *firestore.DocumentRef {
+		return &firestore.DocumentRef{ID: "x"}
+	}
 	called := 0
 	createNonTransactional = func(ctx context.Context, _ *firestore.DocumentRef, _ interface{}) (*firestore.WriteResult, error) {
 		called++
@@ -44,9 +49,9 @@ func Test_DB_InsertMulti_uses_createNonTransactional(t *testing.T) {
 	}
 
 	db := database{id: "db", client: &firestore.Client{}}
-	records := []dal.Record{
-		dal.NewRecordWithData(dal.NewKeyWithID("c", "1"), struct{}{}),
-		dal.NewRecordWithData(dal.NewKeyWithID("c", "2"), struct{}{}),
+	records := []record.Record{
+		record.NewRecordWithData(record.NewKeyWithID("c", "1"), struct{}{}),
+		record.NewRecordWithData(record.NewKeyWithID("c", "2"), struct{}{}),
 	}
 	if err := db.InsertMulti(context.Background(), records); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -101,7 +106,7 @@ func Test_DB_InsertMulti_honors_WithAdapterGeneratedID(t *testing.T) {
 	defer func() { Debugf = origDebugf }()
 
 	db := database{id: "db", client: &firestore.Client{}}
-	records := []dal.Record{newIncompleteRecord(), newIncompleteRecord()}
+	records := []record.Record{newIncompleteRecord(), newIncompleteRecord()}
 	if err := db.InsertMulti(context.Background(), records, dal.WithAdapterGeneratedID()); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

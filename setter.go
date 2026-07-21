@@ -3,9 +3,8 @@ package dalgo2firestore
 import (
 	"context"
 	"fmt"
+	dalrecord "github.com/dal-go/record"
 	"time"
-
-	"github.com/dal-go/dalgo/dal"
 )
 
 //type setter struct {
@@ -25,7 +24,7 @@ import (
 //	}
 //}
 
-func (db database) Set(ctx context.Context, record dal.Record) (err error) {
+func (db database) Set(ctx context.Context, record dalrecord.Record) (err error) {
 	if record == nil {
 		panic("record is a required parameter, got nil")
 	}
@@ -43,7 +42,7 @@ func (db database) Set(ctx context.Context, record dal.Record) (err error) {
 	return err
 }
 
-func (db database) SetMulti(ctx context.Context, records []dal.Record) (err error) {
+func (db database) SetMulti(ctx context.Context, records []dalrecord.Record) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()

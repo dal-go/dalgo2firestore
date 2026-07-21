@@ -9,6 +9,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
+	dalrecord "github.com/dal-go/record"
 	"google.golang.org/api/iterator"
 )
 
@@ -24,7 +25,7 @@ func (d *firestoreReader) Close() error {
 	return nil
 }
 
-func (d *firestoreReader) Next() (record dal.Record, err error) {
+func (d *firestoreReader) Next() (record dalrecord.Record, err error) {
 	switch q := d.query.(type) {
 	case dal.StructuredQuery:
 		if limit := d.query.Limit(); limit > 0 && d.i >= limit {
@@ -38,10 +39,10 @@ func (d *firestoreReader) Next() (record dal.Record, err error) {
 				// Queries without IntoRecord and without an ID kind (e.g. column
 				// projection or GROUP BY aggregation returning map-shaped records)
 				// are not implemented by this adapter. Report it per the dalgo
-				// capability contract instead of panicking in dal.NewRecordWithIncompleteKey.
+				// capability contract instead of panicking in record.NewRecordWithIncompleteKey.
 				return nil, fmt.Errorf("%w: query without IntoRecord and ID kind (e.g. column projection or aggregation) is not supported by dalgo2firestore", dal.ErrNotSupported)
 			}
-			record = dal.NewRecordWithIncompleteKey(base.Name(), idKind, nil)
+			record = dalrecord.NewRecordWithIncompleteKey(base.Name(), idKind, nil)
 		}
 		var doc *firestore.DocumentSnapshot
 		if doc, err = d.docIterator.Next(); err != nil {

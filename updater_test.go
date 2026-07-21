@@ -7,7 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/dalgo/update"
+	"github.com/dal-go/record/update"
 )
 
 type mockUpdate struct {

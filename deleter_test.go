@@ -5,8 +5,7 @@ import (
 	"testing"
 
 	"cloud.google.com/go/firestore"
-
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/record"
 )
 
 func Test_database_Delete_calls_deleteByDocRef(t *testing.T) {
@@ -15,7 +14,7 @@ func Test_database_Delete_calls_deleteByDocRef(t *testing.T) {
 	defer func() { keyToDocRef = origKeyToDocRef; deleteByDocRef = origDelete }()
 
 	var gotDocRef *firestore.DocumentRef
-	keyToDocRef = func(_ *dal.Key, _ *firestore.Client) *firestore.DocumentRef {
+	keyToDocRef = func(_ *record.Key, _ *firestore.Client) *firestore.DocumentRef {
 		return &firestore.DocumentRef{ID: "abc"}
 	}
 	deleteByDocRef = func(ctx context.Context, docRef *firestore.DocumentRef) (*firestore.WriteResult, error) {
@@ -24,7 +23,7 @@ func Test_database_Delete_calls_deleteByDocRef(t *testing.T) {
 	}
 
 	db := database{id: "t", client: &firestore.Client{}}
-	key := dal.NewKeyWithID("coll", "1")
+	key := record.NewKeyWithID("coll", "1")
 	if err := db.Delete(context.Background(), key); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

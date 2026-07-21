@@ -5,8 +5,7 @@ import (
 	"testing"
 
 	"cloud.google.com/go/firestore"
-
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/record"
 )
 
 // Test_DB_Set_does_not_panic_on_fresh_record is the regression for the bug where
@@ -21,7 +20,7 @@ func Test_DB_Set_does_not_panic_on_fresh_record(t *testing.T) {
 	origSet := setFirestore
 	defer func() { keyToDocRef = origKeyToDocRef; setFirestore = origSet }()
 
-	keyToDocRef = func(_ *dal.Key, _ *firestore.Client) *firestore.DocumentRef {
+	keyToDocRef = func(_ *record.Key, _ *firestore.Client) *firestore.DocumentRef {
 		return &firestore.DocumentRef{ID: "x"}
 	}
 	called := 0
@@ -32,7 +31,7 @@ func Test_DB_Set_does_not_panic_on_fresh_record(t *testing.T) {
 
 	db := database{id: "db", client: &firestore.Client{}}
 	// A freshly built record: NewRecordWithData leaves the record error nil.
-	rec := dal.NewRecordWithData(dal.NewKeyWithID("c", "1"), &struct{ V string }{V: "v"})
+	rec := record.NewRecordWithData(record.NewKeyWithID("c", "1"), &struct{ V string }{V: "v"})
 	if err := db.Set(context.Background(), rec); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
