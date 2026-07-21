@@ -2,9 +2,8 @@ package dalgo2firestore
 
 import (
 	"context"
+	"github.com/dal-go/record"
 	"time"
-
-	"github.com/dal-go/dalgo/dal"
 )
 
 //type deleter struct {
@@ -26,7 +25,7 @@ import (
 //}
 
 // Delete deletes a record from the database.
-func (db database) Delete(ctx context.Context, key *dal.Key) (err error) {
+func (db database) Delete(ctx context.Context, key *record.Key) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
@@ -40,7 +39,7 @@ func (db database) Delete(ctx context.Context, key *dal.Key) (err error) {
 }
 
 // DeleteMulti deletes multiple records from the database.
-func (db database) DeleteMulti(ctx context.Context, keys []*dal.Key) (err error) {
+func (db database) DeleteMulti(ctx context.Context, keys []*record.Key) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()

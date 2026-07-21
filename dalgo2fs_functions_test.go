@@ -6,6 +6,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/record"
 )
 
 func TestGetFirestoreCollectionRef(t *testing.T) {
@@ -15,7 +16,7 @@ func TestGetFirestoreCollectionRef(t *testing.T) {
 	}
 	client := &firestore.Client{}
 	rootColRef := dal.NewRootCollectionRef("c1", "id1")
-	subColRef := dal.NewCollectionRef("c2", "id2", dal.NewKeyWithID("c1", "id1"))
+	subColRef := dal.NewCollectionRef("c2", "id2", record.NewKeyWithID("c1", "id1"))
 	tests := []struct {
 		name                string
 		args                args

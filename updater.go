@@ -8,7 +8,8 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
-	"github.com/dal-go/dalgo/update"
+	dalrecord "github.com/dal-go/record"
+	"github.com/dal-go/record/update"
 )
 
 //type updater struct {
@@ -23,7 +24,7 @@ import (
 
 func (db database) Update(
 	ctx context.Context,
-	key *dal.Key,
+	key *dalrecord.Key,
 	update []update.Update,
 	preconditions ...dal.Precondition,
 ) error {
@@ -34,7 +35,7 @@ func (db database) Update(
 
 func (db database) UpdateMulti(
 	ctx context.Context,
-	keys []*dal.Key,
+	keys []*dalrecord.Key,
 	updates []update.Update,
 	preconditions ...dal.Precondition,
 ) error {
@@ -45,7 +46,7 @@ func (db database) UpdateMulti(
 
 func (tx transaction) Update(
 	_ context.Context,
-	key *dal.Key,
+	key *dalrecord.Key,
 	updates []update.Update,
 	preconditions ...dal.Precondition,
 ) error {
@@ -58,13 +59,13 @@ func (tx transaction) Update(
 	return tx.tx.Update(dr, fsUpdates, fsPreconditions...)
 }
 
-func (tx transaction) UpdateRecord(ctx context.Context, record dal.Record, updates []update.Update, preconditions ...dal.Precondition) error {
+func (tx transaction) UpdateRecord(ctx context.Context, record dalrecord.Record, updates []update.Update, preconditions ...dal.Precondition) error {
 	return tx.Update(ctx, record.Key(), updates, preconditions...)
 }
 
 func (tx transaction) UpdateMulti(
 	_ context.Context,
-	keys []*dal.Key,
+	keys []*dalrecord.Key,
 	updates []update.Update,
 	preconditions ...dal.Precondition,
 ) error {

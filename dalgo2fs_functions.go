@@ -6,9 +6,10 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/record"
 )
 
-var keyToDocRef = func(key *dal.Key, client *firestore.Client) *firestore.DocumentRef {
+var keyToDocRef = func(key *record.Key, client *firestore.Client) *firestore.DocumentRef {
 	if key == nil {
 		panic("key is a required parameter, got nil")
 	}
@@ -20,7 +21,7 @@ var keyToDocRef = func(key *dal.Key, client *firestore.Client) *firestore.Docume
 	return docRef
 }
 
-var keyToCollectionRef = func(key *dal.Key, client *firestore.Client) *firestore.CollectionRef {
+var keyToCollectionRef = func(key *record.Key, client *firestore.Client) *firestore.CollectionRef {
 	if key == nil {
 		panic("key is a required parameter, got nil")
 	}

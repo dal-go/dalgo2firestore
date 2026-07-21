@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
+	dalrecord "github.com/dal-go/record"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -44,8 +45,8 @@ func stubCreateNonTransactional(t *testing.T, err error) (calls *int) {
 	return calls
 }
 
-func newIncompleteRecord() dal.Record {
-	return dal.NewRecordWithData(dal.NewIncompleteKey("c", reflect.String, nil), &testData{})
+func newIncompleteRecord() dalrecord.Record {
+	return dalrecord.NewRecordWithData(dalrecord.NewIncompleteKey("c", reflect.String, nil), &testData{})
 }
 
 func Test_insertWithOptions_with_id_generator_success_first_attempt(t *testing.T) {
@@ -152,7 +153,7 @@ func Test_insertWithOptions_with_adapter_generated_id_keeps_complete_key(t *test
 	createCalls := stubCreateNonTransactional(t, nil)
 
 	db := database{id: "t", client: &firestore.Client{}}
-	record := dal.NewRecordWithData(dal.NewKeyWithID("c", "fixed-id"), &testData{})
+	record := dalrecord.NewRecordWithData(dalrecord.NewKeyWithID("c", "fixed-id"), &testData{})
 	options := dal.NewInsertOptions(dal.WithAdapterGeneratedID())
 
 	if err := insertWithOptions(context.Background(), db, record, createNonTransactional, options); err != nil {
@@ -170,7 +171,7 @@ func Test_insertWithOptions_without_options_keeps_key_as_is(t *testing.T) {
 	createCalls := stubCreateNonTransactional(t, nil)
 
 	db := database{id: "t", client: &firestore.Client{}}
-	record := dal.NewRecordWithData(dal.NewKeyWithID("c", "explicit-id"), &testData{})
+	record := dalrecord.NewRecordWithData(dalrecord.NewKeyWithID("c", "explicit-id"), &testData{})
 
 	if err := insertWithOptions(context.Background(), db, record, createNonTransactional, dal.NewInsertOptions()); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -187,7 +188,7 @@ func Test_insertMulti_with_adapter_generated_id(t *testing.T) {
 	createCalls := stubCreateNonTransactional(t, nil)
 
 	db := database{id: "t", client: &firestore.Client{}}
-	records := []dal.Record{newIncompleteRecord(), newIncompleteRecord()}
+	records := []dalrecord.Record{newIncompleteRecord(), newIncompleteRecord()}
 
 	if err := insertMulti(context.Background(), db, records, createNonTransactional, dal.WithAdapterGeneratedID()); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -210,7 +211,7 @@ func Test_insertMulti_with_id_generator(t *testing.T) {
 	createCalls := stubCreateNonTransactional(t, nil)
 
 	db := database{id: "t", client: &firestore.Client{}}
-	records := []dal.Record{newIncompleteRecord(), newIncompleteRecord()}
+	records := []dalrecord.Record{newIncompleteRecord(), newIncompleteRecord()}
 
 	if err := insertMulti(context.Background(), db, records, createNonTransactional, dal.WithRandomStringKey(8, 5)); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -230,8 +231,8 @@ func Test_insertMulti_returns_error_with_record_index(t *testing.T) {
 	stubCreateNonTransactional(t, createErr)
 
 	db := database{id: "t", client: &firestore.Client{}}
-	records := []dal.Record{
-		dal.NewRecordWithData(dal.NewKeyWithID("c", "1"), &testData{}),
+	records := []dalrecord.Record{
+		dalrecord.NewRecordWithData(dalrecord.NewKeyWithID("c", "1"), &testData{}),
 	}
 
 	err := insertMulti(context.Background(), db, records, createNonTransactional)

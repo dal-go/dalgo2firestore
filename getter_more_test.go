@@ -6,22 +6,22 @@ import (
 
 	"cloud.google.com/go/firestore"
 
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/record"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func Test_handleGetByKeyError_NotFoundWrap(t *testing.T) {
-	key := dal.NewKeyWithID("c", "1")
+	key := record.NewKeyWithID("c", "1")
 	err := handleGetByKeyError(key, status.Errorf(codes.NotFound, "no"))
-	if !dal.IsNotFound(err) {
+	if !record.IsNotFound(err) {
 		t.Fatalf("expected dal.NotFound, got: %v", err)
 	}
 }
 
 func Test_existsByKey(t *testing.T) {
 	ctx := context.Background()
-	key := dal.NewKeyWithID("c", "1")
+	key := record.NewKeyWithID("c", "1")
 	client := &firestore.Client{}
 
 	// Case: found

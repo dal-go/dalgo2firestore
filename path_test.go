@@ -1,14 +1,13 @@
 package dalgo2firestore
 
 import (
+	"github.com/dal-go/record"
 	"reflect"
 	"testing"
-
-	"github.com/dal-go/dalgo/dal"
 )
 
 func TestPathFromKey(t *testing.T) {
-	k := dal.NewKeyWithID("users", "u1")
+	k := record.NewKeyWithID("users", "u1")
 	got := PathFromKey(k)
 	want := k.String()
 	if got != want {

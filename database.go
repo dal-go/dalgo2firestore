@@ -6,6 +6,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/dal-go/dalgo/dal"
+	dalrecord "github.com/dal-go/record"
 )
 
 // NewDatabase creates new instance of dalgo interface to Firestore
@@ -53,11 +54,11 @@ func (db database) Schema() dal.Schema {
 
 var _ dal.DB = (*database)(nil)
 
-func (db database) Upsert(_ context.Context, _ dal.Record) error {
+func (db database) Upsert(_ context.Context, _ dalrecord.Record) error {
 	panic("implement me")
 }
 
-func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.InsertOption) (err error) {
+func (db database) Insert(ctx context.Context, record dalrecord.Record, opts ...dal.InsertOption) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()
@@ -70,7 +71,7 @@ func (db database) Insert(ctx context.Context, record dal.Record, opts ...dal.In
 	return err
 }
 
-func (db database) InsertMulti(ctx context.Context, records []dal.Record, opts ...dal.InsertOption) (err error) {
+func (db database) InsertMulti(ctx context.Context, records []dalrecord.Record, opts ...dal.InsertOption) (err error) {
 	var started time.Time
 	if Debugf != nil {
 		started = time.Now()

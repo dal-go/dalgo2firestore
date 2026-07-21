@@ -4,7 +4,7 @@ go 1.25.8
 
 require (
 	cloud.google.com/go/firestore v1.24.0
-	github.com/dal-go/dalgo v0.63.0
+	github.com/dal-go/dalgo v0.63.1
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.289.0
 	google.golang.org/grpc v1.82.1
@@ -21,6 +21,7 @@ require (
 	github.com/RoaringBitmap/roaring/v2 v2.21.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/dal-go/record v0.1.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect

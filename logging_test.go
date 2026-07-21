@@ -3,11 +3,10 @@ package dalgo2firestore
 import (
 	"context"
 	"fmt"
+	"github.com/dal-go/record"
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/dal-go/dalgo/dal"
 )
 
 func Test_logging_helpers(t *testing.T) {
@@ -19,9 +18,9 @@ func Test_logging_helpers(t *testing.T) {
 	}
 	defer func() { Debugf = orig }()
 
-	records := []dal.Record{
-		dal.NewRecordWithData(dal.NewKeyWithID("c", "1"), struct{}{}),
-		dal.NewRecordWithData(dal.NewKeyWithID("c", "2"), struct{}{}),
+	records := []record.Record{
+		record.NewRecordWithData(record.NewKeyWithID("c", "1"), struct{}{}),
+		record.NewRecordWithData(record.NewKeyWithID("c", "2"), struct{}{}),
 	}
 	logMultiRecords(ctx, "op", records /*started*/, time.Now(), nil)
 	if len(msgs) == 0 {
@@ -29,7 +28,7 @@ func Test_logging_helpers(t *testing.T) {
 	}
 
 	msgs = nil
-	keys := []*dal.Key{dal.NewKeyWithID("c", "1"), dal.NewKeyWithID("c", "2")}
+	keys := []*record.Key{record.NewKeyWithID("c", "1"), record.NewKeyWithID("c", "2")}
 	logMultiKeys(ctx, "op2", keys /*started*/, time.Now(), nil)
 	if len(msgs) == 0 || !strings.Contains(msgs[0], "op2") {
 		t.Fatalf("expected log message with op2, got: %v", msgs)
