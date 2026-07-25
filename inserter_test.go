@@ -9,13 +9,11 @@ import (
 	"github.com/dal-go/record"
 )
 
-type testData struct {
-	ValidErr   error
-	WithKeyErr error
-}
-
-func (t testData) Validate() error                     { return t.ValidErr }
-func (t testData) ValidateWithKey(_ *record.Key) error { return t.WithKeyErr }
+// testData is a plain payload with no validation of its own: record
+// invariants are now the framework's job (dal.BeforeSave, run by the pipeline
+// dal.NewDB returns), not this adapter's. See TestConformance for the
+// behavioural proof that Insert/Set/UpdateRecord are all covered.
+type testData struct{}
 
 func withStubbedDocRef(t *testing.T, fn func()) {
 	t.Helper()
@@ -40,40 +38,6 @@ func Test_insert_success(t *testing.T) {
 		rec := record.NewRecordWithData(key, testData{})
 		if _, err := insert(context.Background(), db, rec, createNonTransactional); err != nil {
 			t.Fatalf("unexpected error: %v", err)
-		}
-	})
-}
-
-func Test_insert_validate_error(t *testing.T) {
-	withStubbedDocRef(t, func() {
-		origCreate := createNonTransactional
-		createNonTransactional = func(ctx context.Context, _ *firestore.DocumentRef, _ interface{}) (*firestore.WriteResult, error) {
-			return &firestore.WriteResult{}, nil
-		}
-		defer func() { createNonTransactional = origCreate }()
-
-		db := database{id: "t", client: &firestore.Client{}}
-		key := record.NewKeyWithID("c", "1")
-		rec := record.NewRecordWithData(key, testData{ValidErr: errors.New("bad")})
-		if _, err := insert(context.Background(), db, rec, createNonTransactional); err == nil {
-			t.Fatalf("expected validation error")
-		}
-	})
-}
-
-func Test_insert_validate_with_key_error(t *testing.T) {
-	withStubbedDocRef(t, func() {
-		origCreate := createNonTransactional
-		createNonTransactional = func(ctx context.Context, _ *firestore.DocumentRef, _ interface{}) (*firestore.WriteResult, error) {
-			return &firestore.WriteResult{}, nil
-		}
-		defer func() { createNonTransactional = origCreate }()
-
-		db := database{id: "t", client: &firestore.Client{}}
-		key := record.NewKeyWithID("c", "1")
-		rec := record.NewRecordWithData(key, testData{WithKeyErr: errors.New("bad-with-key")})
-		if _, err := insert(context.Background(), db, rec, createNonTransactional); err == nil {
-			t.Fatalf("expected validate with key error")
 		}
 	})
 }

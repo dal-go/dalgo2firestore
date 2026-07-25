@@ -17,7 +17,7 @@ func NewDatabase(id string, client *firestore.Client) (db dal.DB) {
 	if client == nil {
 		panic("client is a required field, got nil")
 	}
-	return &database{
+	return dal.NewDB(&database{
 		id:     id,
 		client: client,
 		QueryExecutor: queryExecutor{
@@ -25,11 +25,11 @@ func NewDatabase(id string, client *firestore.Client) (db dal.DB) {
 				return newFirestoreReader(c, client, query)
 			},
 		},
-	}
+	})
 }
 
-var _ dal.DB = database{}
-var _ dal.DB = (*database)(nil)
+var _ dal.Backend = database{}
+var _ dal.Backend = (*database)(nil)
 
 // database implements dal.Database
 type database struct {
@@ -52,7 +52,7 @@ func (db database) Schema() dal.Schema {
 	return nil
 }
 
-var _ dal.DB = (*database)(nil)
+var _ dal.Backend = (*database)(nil)
 
 func (db database) Upsert(_ context.Context, _ dalrecord.Record) error {
 	panic("implement me")
