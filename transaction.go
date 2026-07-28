@@ -47,6 +47,9 @@ func createFirestoreTransactionOptions(opts []dal.TransactionOption) (options []
 	if to.IsReadonly() {
 		options = append(options, firestore.ReadOnly)
 	}
+	if attempts := to.Attempts(); attempts > 0 {
+		options = append(options, firestore.MaxAttempts(attempts))
+	}
 	return
 }
 
