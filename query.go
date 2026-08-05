@@ -34,13 +34,16 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		}
 
 		if limit := q.Limit(); limit > 0 {
-			query.Limit(limit)
+			query = query.Limit(limit)
 		}
 		if offset := q.Offset(); offset > 0 {
-			query.Offset(offset)
+			query = query.Offset(offset)
 		}
 		if startFrom := q.StartFrom(); startFrom != "" {
-			query.StartAt(startFrom)
+			query = query.StartAt(startFrom)
+		}
+		if startAfter := q.StartAfter(); startAfter != "" {
+			query = query.StartAfter(startAfter)
 		}
 		if where := q.Where(); where != nil {
 			if query, err = applyWhere(where, query); err != nil {
@@ -61,7 +64,7 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 
 func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Query, error) {
 	for _, o := range orderBy {
-		expression := o.Expression().String()
+		expression := firestoreOrderExpression(o.Expression())
 		if o.Descending() {
 			q = q.OrderBy(expression, firestore.Desc)
 		} else {
@@ -69,6 +72,13 @@ func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Q
 		}
 	}
 	return q, nil
+}
+
+func firestoreOrderExpression(expression dal.Expression) string {
+	if field, ok := expression.(dal.FieldRef); ok && field.IsID() {
+		return firestore.DocumentID
+	}
+	return expression.String()
 }
 
 // dalOperator2firestore maps dalgo comparison operators to the operator strings
