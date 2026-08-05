@@ -33,18 +33,7 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 			return
 		}
 
-		if limit := q.Limit(); limit > 0 {
-			query = query.Limit(limit)
-		}
-		if offset := q.Offset(); offset > 0 {
-			query = query.Offset(offset)
-		}
-		if startFrom := q.StartFrom(); startFrom != "" {
-			query = query.StartAt(startFrom)
-		}
-		if startAfter := q.StartAfter(); startAfter != "" {
-			query = query.StartAfter(startAfter)
-		}
+		query = applyQueryWindow(q, query)
 		if where := q.Where(); where != nil {
 			if query, err = applyWhere(where, query); err != nil {
 				return
@@ -60,6 +49,22 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		err = fmt.Errorf("only dal.StructuredQueries are supported, got %T ", q)
 		return
 	}
+}
+
+func applyQueryWindow(q dal.StructuredQuery, query firestore.Query) firestore.Query {
+	if limit := q.Limit(); limit > 0 {
+		query = query.Limit(limit)
+	}
+	if offset := q.Offset(); offset > 0 {
+		query = query.Offset(offset)
+	}
+	if startFrom := q.StartFrom(); startFrom != "" {
+		query = query.StartAt(startFrom)
+	}
+	if startAfter := q.StartAfter(); startAfter != "" {
+		query = query.StartAfter(startAfter)
+	}
+	return query
 }
 
 func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Query, error) {
