@@ -3,8 +3,8 @@ module github.com/dal-go/dalgo2firestore
 go 1.25.8
 
 require (
-	cloud.google.com/go/firestore v1.24.0
-	github.com/dal-go/dalgo v0.64.5
+	cloud.google.com/go/firestore v1.25.0
+	github.com/dal-go/dalgo v0.64.6
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.292.0
 	google.golang.org/grpc v1.83.0
