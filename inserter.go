@@ -28,6 +28,16 @@ func insert(ctx context.Context, db database, record dalrecord.Record, create cr
 	data := record.Data()
 
 	if result, err = create(ctx, docRef, data); err != nil {
+		// Firestore reports an insert over an existing document as a gRPC
+		// codes.AlreadyExists status, for both docRef.Create and
+		// firestore.Transaction.Create (both reach here through createFunc).
+		// Classify it as record.ErrRecordExists so callers can distinguish
+		// "this key is taken" from any other insert failure with
+		// record.IsAlreadyExists, the same way recordExists below classifies
+		// codes.NotFound as record.ErrRecordNotFound.
+		if status.Code(err) == codes.AlreadyExists {
+			err = fmt.Errorf("%w: %w", dalrecord.ErrRecordExists, err)
+		}
 		record.SetError(fmt.Errorf("failed to insert record: %w", err))
 		return
 	}

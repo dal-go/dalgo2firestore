@@ -4,7 +4,7 @@ go 1.25.8
 
 require (
 	cloud.google.com/go/firestore v1.25.0
-	github.com/dal-go/dalgo v0.64.8
+	github.com/dal-go/dalgo v0.66.0
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.293.0
 	google.golang.org/grpc v1.83.1
@@ -23,8 +23,7 @@ require (
 	github.com/RoaringBitmap/roaring/v2 v2.25.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/dal-go/record v0.1.2
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/dal-go/record v0.1.3-0.20260823104806-1a4a63df1fc5
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -32,7 +31,6 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.20 // indirect
 	github.com/googleapis/gax-go/v2 v2.23.0 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/strongo/random v0.0.1 // indirect
 	github.com/strongo/validation v0.0.10 // indirect
@@ -53,5 +51,4 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260630182238-925bb5da69e7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260807164820-c8921c73eeea // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
