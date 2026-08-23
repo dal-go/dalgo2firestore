@@ -36,6 +36,15 @@ func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker
 	err = db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
 	}, firestoreTxOptions...)
+	// A transactional write is BUFFERED: firestore.Transaction.Create queues the
+	// write and returns nil, so a duplicate key is not reported by tx.Insert at
+	// all — the AlreadyExists status surfaces here, out of the commit performed
+	// by RunTransaction. Classifying only inside insert() therefore misses every
+	// transactional insert, which is exactly what the shared dalgo conformance
+	// check caught: its duplicate-insert case runs inside a transaction.
+	if isAlreadyExists(err) {
+		err = fmt.Errorf("%w: %w", dalrecord.ErrRecordExists, err)
+	}
 	if Debugf != nil {
 		Debugf(ctx, "RunReadwriteTransaction() completed in %v, err: %v", time.Since(started), err)
 	}
