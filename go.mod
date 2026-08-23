@@ -23,7 +23,7 @@ require (
 	github.com/RoaringBitmap/roaring/v2 v2.25.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/dal-go/record v0.1.3-0.20260823104806-1a4a63df1fc5
+	github.com/dal-go/record v0.1.3
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
