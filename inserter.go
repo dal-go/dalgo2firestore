@@ -2,6 +2,7 @@ package dalgo2firestore
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -28,10 +29,35 @@ func insert(ctx context.Context, db database, record dalrecord.Record, create cr
 	data := record.Data()
 
 	if result, err = create(ctx, docRef, data); err != nil {
+		// Firestore reports an insert over an existing document as a gRPC
+		// codes.AlreadyExists status, for both docRef.Create and
+		// firestore.Transaction.Create (both reach here through createFunc).
+		// Classify it as record.ErrRecordExists so callers can distinguish
+		// "this key is taken" from any other insert failure with
+		// record.IsAlreadyExists, the same way recordExists below classifies
+		// codes.NotFound as record.ErrRecordNotFound.
+		//
+		// Deliberately not status.Code(err): that type-asserts on the error it
+		// is handed and returns codes.Unknown for a status wrapped in anything
+		// else, which is how the Firestore client returns some errors. The
+		// shared dalgo conformance check caught exactly that — a duplicate
+		// insert surfaced its raw AlreadyExists status unclassified. errors.As
+		// walks the chain, so it holds however deeply the status is wrapped.
+		if isAlreadyExists(err) {
+			err = fmt.Errorf("%w: %w", dalrecord.ErrRecordExists, err)
+		}
 		record.SetError(fmt.Errorf("failed to insert record: %w", err))
 		return
 	}
 	return
+}
+
+// isAlreadyExists reports whether err carries a gRPC codes.AlreadyExists status
+// anywhere in its chain. It matches on the GRPCStatus() interface via errors.As
+// rather than status.Code, which only inspects the outermost error.
+func isAlreadyExists(err error) bool {
+	var se interface{ GRPCStatus() *status.Status }
+	return errors.As(err, &se) && se.GRPCStatus().Code() == codes.AlreadyExists
 }
 
 // recordExists returns nil if a document for the given key exists,
