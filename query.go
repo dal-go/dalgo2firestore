@@ -34,13 +34,16 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		}
 
 		if limit := q.Limit(); limit > 0 {
-			query.Limit(limit)
+			query = query.Limit(limit)
 		}
 		if offset := q.Offset(); offset > 0 {
-			query.Offset(offset)
+			query = query.Offset(offset)
 		}
 		if startFrom := q.StartFrom(); startFrom != "" {
-			query.StartAt(startFrom)
+			query = query.StartAt(startFrom)
+		}
+		if startAfter := q.StartAfter(); startAfter != "" {
+			query = query.StartAfter(startAfter)
 		}
 		if where := q.Where(); where != nil {
 			if query, err = applyWhere(where, query); err != nil {

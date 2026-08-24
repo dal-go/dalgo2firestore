@@ -21,7 +21,7 @@ require (
 	github.com/RoaringBitmap/roaring/v2 v2.24.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/dal-go/record v0.1.1
+	github.com/dal-go/record v0.1.2
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
@@ -53,3 +53,5 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/dal-go/dalgo => /Users/alex/projects/.wb/worktrees/document-id-cursor/dal-go/dalgo
