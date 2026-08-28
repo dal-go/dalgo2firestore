@@ -6,9 +6,9 @@ toolchain go1.27.0
 
 require (
 	cloud.google.com/go/firestore v1.25.0
-	github.com/dal-go/dalgo v0.74.1
+	github.com/dal-go/dalgo v0.74.2
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.294.0
+	google.golang.org/api v0.295.0
 	google.golang.org/grpc v1.83.2
 )
 
@@ -22,7 +22,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cloud.google.com/go/longrunning v1.2.0 // indirect
-	github.com/RoaringBitmap/roaring/v2 v2.25.0 // indirect
+	github.com/RoaringBitmap/roaring/v2 v2.26.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dal-go/record v0.1.3
@@ -35,7 +35,7 @@ require (
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/strongo/random v0.0.1 // indirect
-	github.com/strongo/validation v0.0.10 // indirect
+	github.com/strongo/validation v0.0.12 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.67.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.67.0 // indirect
