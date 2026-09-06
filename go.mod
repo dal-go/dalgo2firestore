@@ -2,13 +2,13 @@ module github.com/dal-go/dalgo2firestore
 
 go 1.26.0
 
-toolchain go1.27.0
+toolchain go1.27.1
 
 require (
 	cloud.google.com/go/firestore v1.25.0
-	github.com/dal-go/dalgo v0.75.1
+	github.com/dal-go/dalgo v0.79.3
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.295.0
+	google.golang.org/api v0.297.0
 	google.golang.org/grpc v1.83.2
 )
 
