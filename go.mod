@@ -6,7 +6,7 @@ toolchain go1.27.1
 
 require (
 	cloud.google.com/go/firestore v1.25.0
-	github.com/dal-go/dalgo v0.79.4
+	github.com/dal-go/dalgo v0.79.5
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.297.0
 	google.golang.org/grpc v1.83.2
@@ -37,7 +37,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.24.0 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
-	github.com/strongo/random v0.0.1 // indirect
+	github.com/strongo/random v0.0.2 // indirect
 	github.com/strongo/validation v0.0.13 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.67.0 // indirect
