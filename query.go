@@ -110,6 +110,9 @@ func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error)
 				}
 				q = q.Where(left.Name(), operator, right.Value)
 			case dal.Array:
+				if comparison.Operator != dal.In {
+					return fmt.Errorf("%w: operator %q is not supported for array operand by Firestore", dal.ErrNotSupported, comparison.Operator)
+				}
 				q = q.Where(left.Name(), "array-contains-any", right.Value)
 			default:
 				return fmt.Errorf("only FieldRef are supported as left operand, got: %T", right)
