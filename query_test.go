@@ -1,6 +1,7 @@
 package dalgo2firestore
 
 import (
+	"errors"
 	"reflect"
 	"strings"
 	"testing"
@@ -91,6 +92,19 @@ func Test_applyWhere_unsupported_operator(t *testing.T) {
 		t.Fatalf("expected error for unsupported operator")
 	} else if !strings.Contains(err.Error(), "not supported") {
 		t.Fatalf("expected 'not supported' error, got: %v", err)
+	}
+}
+
+func Test_applyWhere_array_operand_requires_in_operator(t *testing.T) {
+	baseQuery := (&firestore.Client{}).Collection("c").Query
+
+	for _, operator := range []dal.Operator{dal.NotIn, dal.Operator("contains")} {
+		t.Run(string(operator), func(t *testing.T) {
+			condition := dal.NewComparison(testFieldRef(t, "f"), operator, dal.Array{Value: []string{"a", "b"}})
+			if _, err := applyWhere(condition, baseQuery); !errors.Is(err, dal.ErrNotSupported) {
+				t.Fatalf("expected wrapped dal.ErrNotSupported, got: %v", err)
+			}
+		})
 	}
 }
 
