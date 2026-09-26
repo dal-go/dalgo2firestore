@@ -5,8 +5,8 @@ go 1.26.0
 toolchain go1.27.1
 
 require (
-	cloud.google.com/go/firestore v1.25.0
-	github.com/dal-go/dalgo v0.86.1
+	cloud.google.com/go/firestore v1.26.0
+	github.com/dal-go/dalgo v0.88.0
 	github.com/pkg/errors v0.9.1
 	google.golang.org/api v0.299.0
 	google.golang.org/grpc v1.84.0
