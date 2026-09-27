@@ -148,6 +148,12 @@ func docSnapshotToRecord(
 	return nil
 }
 
+var getAllFirestore = func(ctx context.Context, client *firestore.Client, drs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error) {
+	return client.GetAll(ctx, drs)
+}
+
 func (db database) GetMulti(ctx context.Context, records []dalrecord.Record) error {
-	return getMulti(ctx, records, "db", db.client, db.client.GetAll)
+	return getMulti(ctx, records, "db", db.client, func(c context.Context, drs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error) {
+		return getAllFirestore(c, db.client, drs)
+	})
 }

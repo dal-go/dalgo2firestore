@@ -15,6 +15,10 @@ import (
 
 var _ dal.Reader = (*firestoreReader)(nil)
 
+var docIteratorNext = func(it *firestore.DocumentIterator) (*firestore.DocumentSnapshot, error) {
+	return it.Next()
+}
+
 type firestoreReader struct {
 	i           int // iteration
 	query       dal.Query
@@ -44,8 +48,9 @@ func (d *firestoreReader) Next() (record dalrecord.Record, err error) {
 			}
 			record = dalrecord.NewRecordWithIncompleteKey(base.Name(), idKind, nil)
 		}
+
 		var doc *firestore.DocumentSnapshot
-		if doc, err = d.docIterator.Next(); err != nil {
+		if doc, err = docIteratorNext(d.docIterator); err != nil {
 			if errors.Is(err, iterator.Done) {
 				err = fmt.Errorf("%w: %v", dal.ErrNoMoreRecords, err)
 			}

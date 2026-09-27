@@ -56,7 +56,7 @@ func (tx transaction) Update(
 		return fmt.Errorf("updates for record with key=%s are invalid: %w", key, err)
 	}
 	fsPreconditions := getUpdatePreconditions(preconditions)
-	return tx.tx.Update(dr, fsUpdates, fsPreconditions...)
+	return updateInFirestoreTransaction(tx.tx, dr, fsUpdates, fsPreconditions...)
 }
 
 func (tx transaction) UpdateRecord(ctx context.Context, record dalrecord.Record, updates []update.Update, preconditions ...dal.Precondition) error {
@@ -80,7 +80,7 @@ func (tx transaction) UpdateMulti(
 	}
 	for _, key := range keys {
 		dr := keyToDocRef(key, tx.db.client)
-		if err := tx.tx.Update(dr, fsUpdates, fsPreconditions...); err != nil {
+		if err := updateInFirestoreTransaction(tx.tx, dr, fsUpdates, fsPreconditions...); err != nil {
 			keyPath := PathFromKey(key)
 			return fmt.Errorf("failed to update record with key=%s (path=%s): %w", key, keyPath, err)
 		}

@@ -40,11 +40,9 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 			}
 		}
 		if orderBy := q.OrderBy(); orderBy != nil {
-			if query, err = applyOrderBy(orderBy, query); err != nil {
-				return
-			}
+			query = applyOrderBy(orderBy, query)
 		}
-		return query.Documents(c), err
+		return query.Documents(c), nil
 	default:
 		err = fmt.Errorf("only dal.StructuredQueries are supported, got %T ", q)
 		return
@@ -67,7 +65,7 @@ func applyQueryWindow(q dal.StructuredQuery, query firestore.Query) firestore.Qu
 	return query
 }
 
-func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Query, error) {
+func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) firestore.Query {
 	for _, o := range orderBy {
 		expression := firestoreOrderExpression(o.Expression())
 		if o.Descending() {
@@ -76,7 +74,7 @@ func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) (firestore.Q
 			q = q.OrderBy(expression, firestore.Asc)
 		}
 	}
-	return q, nil
+	return q
 }
 
 func firestoreOrderExpression(expression dal.Expression) string {

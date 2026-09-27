@@ -54,8 +54,8 @@ func (db database) Schema() dal.Schema {
 
 var _ dal.Backend = (*database)(nil)
 
-func (db database) Upsert(_ context.Context, _ dalrecord.Record) error {
-	panic("implement me")
+func (db database) Upsert(ctx context.Context, record dalrecord.Record) error {
+	return db.Set(ctx, record)
 }
 
 func (db database) Insert(ctx context.Context, record dalrecord.Record, opts ...dal.InsertOption) (err error) {

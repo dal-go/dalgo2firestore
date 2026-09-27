@@ -1,7 +1,6 @@
 package dalgo2firestore
 
 import (
-	"fmt"
 	"strings"
 
 	"cloud.google.com/go/firestore"
@@ -14,11 +13,7 @@ var keyToDocRef = func(key *record.Key, client *firestore.Client) *firestore.Doc
 		panic("key is a required parameter, got nil")
 	}
 	path := PathFromKey(key)
-	docRef := client.Doc(path)
-	if docRef == nil {
-		panic(fmt.Sprintf("docRef is nil for path=%s, key: %v", path, key))
-	}
-	return docRef
+	return client.Doc(path)
 }
 
 var keyToCollectionRef = func(key *record.Key, client *firestore.Client) *firestore.CollectionRef {
@@ -27,11 +22,7 @@ var keyToCollectionRef = func(key *record.Key, client *firestore.Client) *firest
 	}
 	path := PathFromKey(key)
 	path = strings.TrimSuffix(path, "/<nil>")
-	collectionRef := client.Collection(path)
-	if collectionRef == nil {
-		panic(fmt.Sprintf("collectionRef is nil for path=%s, key: %v", path, key))
-	}
-	return collectionRef
+	return client.Collection(path)
 }
 
 func GetFirestoreCollectionRef(colRef *dal.CollectionRef, client *firestore.Client) (fsCollectionRef *firestore.CollectionRef) {

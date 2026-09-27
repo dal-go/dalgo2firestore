@@ -11,6 +11,10 @@ import (
 	dalrecord "github.com/dal-go/record"
 )
 
+var runFirestoreTransaction = func(client *firestore.Client, ctx context.Context, f func(context.Context, *firestore.Transaction) error, opts ...firestore.TransactionOption) error {
+	return client.RunTransaction(ctx, f, opts...)
+}
+
 func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker, options ...dal.TransactionOption) (err error) {
 	var started time.Time
 	if Debugf != nil {
@@ -18,7 +22,7 @@ func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker,
 	}
 	options = append(options, dal.TxWithReadonly())
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
-	err = db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+	err = runFirestoreTransaction(db.client, ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
 	}, firestoreTxOptions...)
 	if Debugf != nil {
@@ -33,7 +37,7 @@ func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker
 		started = time.Now()
 	}
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
-	err = db.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+	err = runFirestoreTransaction(db.client, ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
 	}, firestoreTxOptions...)
 	// A transactional write is BUFFERED: firestore.Transaction.Create queues the
@@ -79,8 +83,24 @@ var setInFirestoreTransaction = func(tx *firestore.Transaction, doc *firestore.D
 	return tx.Set(doc, data)
 }
 
-func (tx transaction) Close(_ context.Context) error {
-	panic("TODO: implement or remove me")
+var createInFirestoreTransaction = func(tx *firestore.Transaction, docRef *firestore.DocumentRef, data interface{}) error {
+	return tx.Create(docRef, data)
+}
+
+var deleteInFirestoreTransaction = func(tx *firestore.Transaction, docRef *firestore.DocumentRef) error {
+	return tx.Delete(docRef)
+}
+
+var getInFirestoreTransaction = func(tx *firestore.Transaction, docRef *firestore.DocumentRef) (*firestore.DocumentSnapshot, error) {
+	return tx.Get(docRef)
+}
+
+var getAllInFirestoreTransaction = func(tx *firestore.Transaction, docRefs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error) {
+	return tx.GetAll(docRefs)
+}
+
+var updateInFirestoreTransaction = func(tx *firestore.Transaction, docRef *firestore.DocumentRef, updates []firestore.Update, preconditions ...firestore.Precondition) error {
+	return tx.Update(docRef, updates, preconditions...)
 }
 
 func (tx transaction) ID() string {
@@ -118,7 +138,7 @@ func (tx transaction) Insert(ctx context.Context, record dalrecord.Record, opts 
 // create adapts firestore.Transaction.Create to the createFunc signature.
 // Transactional writes return no per-write result.
 func (tx transaction) create(_ context.Context, docRef *firestore.DocumentRef, data interface{}) (*firestore.WriteResult, error) {
-	return nil, tx.tx.Create(docRef, data)
+	return nil, createInFirestoreTransaction(tx.tx, docRef, data)
 }
 
 func (tx transaction) Upsert(ctx context.Context, record dalrecord.Record) error {
@@ -126,7 +146,7 @@ func (tx transaction) Upsert(ctx context.Context, record dalrecord.Record) error
 }
 
 func (tx transaction) getByDocRef(_ context.Context, dr *firestore.DocumentRef) (*firestore.DocumentSnapshot, error) {
-	return tx.tx.Get(dr)
+	return getInFirestoreTransaction(tx.tx, dr)
 }
 
 func (tx transaction) Get(ctx context.Context, record dalrecord.Record) error {
@@ -149,7 +169,7 @@ func (tx transaction) Set(ctx context.Context, record dalrecord.Record) (err err
 	// is still nil. Mirrors SetMulti below and the insert() path; without it
 	// Set panics with "an attempt to access record data before it was retrieved
 	// from database and SetError(error) called".
-	err = tx.tx.Set(dr, record.Data())
+	err = setInFirestoreTransaction(tx.tx, dr, record.Data())
 	if Debugf != nil {
 		Debugf(ctx, "tx.Set(%v) completed in %v, err: %v", key, time.Since(started), err)
 	}
@@ -162,7 +182,7 @@ func (tx transaction) Delete(ctx context.Context, key *dalrecord.Key) (err error
 		started = time.Now()
 	}
 	dr := keyToDocRef(key, tx.db.client)
-	err = tx.tx.Delete(dr)
+	err = deleteInFirestoreTransaction(tx.tx, dr)
 	if Debugf != nil {
 		Debugf(ctx, "tx.Delete(%v) completed in %v, err: %v", key, time.Since(started), err)
 	}
@@ -172,7 +192,7 @@ func (tx transaction) Delete(ctx context.Context, key *dalrecord.Key) (err error
 func (tx transaction) GetMulti(ctx context.Context, records []dalrecord.Record) error {
 	return getMulti(ctx, records, "tx", tx.db.client,
 		func(_ context.Context, drs []*firestore.DocumentRef) ([]*firestore.DocumentSnapshot, error) {
-			return tx.tx.GetAll(drs)
+			return getAllInFirestoreTransaction(tx.tx, drs)
 		},
 	)
 }
@@ -244,7 +264,7 @@ func (tx transaction) DeleteMulti(ctx context.Context, keys []*dalrecord.Key) (e
 	}
 	for _, k := range keys {
 		dr := keyToDocRef(k, tx.db.client)
-		if err = tx.tx.Delete(dr); err != nil {
+		if err = deleteInFirestoreTransaction(tx.tx, dr); err != nil {
 			err = fmt.Errorf("failed to deleteByDocRef record: %w", err)
 			break
 		}
