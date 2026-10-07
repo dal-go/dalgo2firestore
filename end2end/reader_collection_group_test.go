@@ -32,9 +32,7 @@ func TestFirestoreReaderCollectionGroupUsesReturnedDocumentPaths(t *testing.T) {
 
 func runCollectionGroupPathQuery(t *testing.T) {
 	t.Helper()
-	if err := os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080"); err != nil {
-		t.Fatalf("set Firestore emulator host: %v", err)
-	}
+	t.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:8080")
 
 	ctx := context.Background()
 	projectID := os.Getenv("FIREBASE_PROJECT_ID")
@@ -57,16 +55,20 @@ func runCollectionGroupPathQuery(t *testing.T) {
 		"spaces/" + unique + "-b/projects/project-b/queries/query-b",
 		"spaces/" + unique + "-c/projects/deleted-project/archives/archive/queries/query-c",
 	}
+	fixtureRefs := make([]*firestore.DocumentRef, 0, len(paths))
+	defer func() {
+		for _, ref := range fixtureRefs {
+			if _, err := ref.Delete(ctx); err != nil {
+				t.Errorf("delete fixture document %q: %v", ref.Path, err)
+			}
+		}
+	}()
 	for _, path := range paths {
 		ref := client.Doc(path)
 		if _, err := ref.Set(ctx, map[string]any{"fixture": true}); err != nil {
 			t.Fatalf("seed collection-group document %q: %v", path, err)
 		}
-		t.Cleanup(func() {
-			if _, err := ref.Delete(ctx); err != nil {
-				t.Errorf("delete fixture document %q: %v", path, err)
-			}
-		})
+		fixtureRefs = append(fixtureRefs, ref)
 	}
 
 	// Firestore preserves subcollection documents when an ancestor is deleted.
