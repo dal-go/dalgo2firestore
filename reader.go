@@ -76,14 +76,77 @@ func (d *firestoreReader) Next() (record dalrecord.Record, err error) {
 				return record, fmt.Errorf("failed to convert firestore document snapshot to %T: %w", data, err)
 			}
 		}
-		k := record.Key()
-		k.ID, err = idFromFirestoreDocRef(doc.Ref, k.IDKind)
+		key, err := keyFromFirestoreDocumentRef(doc.Ref, record.Key())
+		if err != nil {
+			return record, err
+		}
+		loaded := dalrecord.NewRecordWithData(key, record.Data())
+		loaded.SetError(nil)
+		if record.HasChanged() {
+			loaded.MarkAsChanged()
+		}
 		d.i++
-		return record, err
+		return loaded, nil
 	default:
 		return nil, fmt.Errorf("%w: Only dal.StructuredQuery is supported, got %T", dal.ErrNotSupported, d.query)
 	}
 
+}
+
+type firestoreDocumentPathPart struct {
+	collection string
+	id         string
+}
+
+// keyFromFirestoreDocumentRef builds a complete DALgo key from the actual
+// reference returned by Firestore. Collection-group results have no useful
+// parent information in the query's IntoRecord factory, and Firestore can
+// return a subcollection document even when one of its parent documents was
+// deleted. The reference chain remains authoritative in both cases.
+func keyFromFirestoreDocumentRef(docRef *firestore.DocumentRef, prototype *dalrecord.Key) (*dalrecord.Key, error) {
+	if docRef == nil {
+		return nil, errors.New("firestore document reference is nil")
+	}
+	if prototype == nil {
+		return nil, errors.New("record key prototype is nil")
+	}
+
+	var path []firestoreDocumentPathPart
+	for current := docRef; current != nil; {
+		if current.Parent == nil || current.Parent.ID == "" || current.ID == "" {
+			return nil, fmt.Errorf("firestore document reference has incomplete parent path: %q", current.Path)
+		}
+		path = append(path, firestoreDocumentPathPart{collection: current.Parent.ID, id: current.ID})
+		current = current.Parent.Parent
+	}
+
+	if path[0].collection != prototype.Collection() {
+		return nil, fmt.Errorf("firestore document collection %q does not match query record collection %q", path[0].collection, prototype.Collection())
+	}
+	leafID, err := idFromFirestoreDocRef(docRef, prototype.IDKind)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert firestore document ID: %w", err)
+	}
+
+	ids := make([]any, len(path))
+	ids[0] = leafID
+	prototypeParent := prototype.Parent()
+	for i := 1; i < len(path); i++ {
+		ids[i] = path[i].id
+		if prototypeParent != nil {
+			if prototypeParent.Collection() == path[i].collection && fmt.Sprint(prototypeParent.ID) == path[i].id {
+				ids[i] = prototypeParent.ID
+			}
+			prototypeParent = prototypeParent.Parent()
+		}
+	}
+
+	key := (*dalrecord.Key)(nil)
+	for i := len(path) - 1; i >= 0; i-- {
+		key = dalrecord.NewKeyWithParentAndID(key, path[i].collection, ids[i])
+	}
+	key.IDKind = prototype.IDKind
+	return key, nil
 }
 
 func (d *firestoreReader) Cursor() (string, error) {
