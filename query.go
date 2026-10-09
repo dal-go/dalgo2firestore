@@ -57,10 +57,13 @@ func applyQueryWindow(q dal.StructuredQuery, query firestore.Query) firestore.Qu
 		query = query.Offset(offset)
 	}
 	if startFrom := q.StartFrom(); startFrom != "" {
-		query = query.StartAt(startFrom)
+		// dal.Cursor is a named string type. Firestore's DocumentID cursor
+		// validation accepts string, not a distinct named type, so normalize at
+		// this adapter boundary while letting the SDK bind the document ref.
+		query = query.StartAt(string(startFrom))
 	}
 	if startAfter := q.StartAfter(); startAfter != "" {
-		query = query.StartAfter(startAfter)
+		query = query.StartAfter(string(startAfter))
 	}
 	return query
 }
