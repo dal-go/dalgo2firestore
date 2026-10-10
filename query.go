@@ -87,7 +87,7 @@ func firestoreDocumentIDCursor(client *firestore.Client, cursor dal.Cursor, coll
 		return string(cursor), nil
 	}
 	if client == nil {
-		return nil, fmt.Errorf("Firestore client is required for collection-group document cursor")
+		return nil, fmt.Errorf("firestore client is required for collection-group document cursor")
 	}
 	ref := client.Doc(string(cursor))
 	if ref == nil {

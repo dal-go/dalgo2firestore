@@ -127,7 +127,11 @@ func TestExecuteCollectionGroupQueryUsesFullDocumentReferenceCursor(t *testing.T
 		if err != nil {
 			t.Fatalf("execute collection-group page after %q: %v", after, err)
 		}
-		defer reader.Close()
+		defer func() {
+			if err := reader.Close(); err != nil {
+				t.Errorf("close collection-group reader: %v", err)
+			}
+		}()
 		if _, err := reader.Next(); err != nil {
 			t.Fatalf("read collection-group page after %q: %v", after, err)
 		}
