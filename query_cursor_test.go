@@ -35,6 +35,7 @@ type cursorFirestoreServer struct {
 	t             *testing.T
 	parent        string
 	collection    string
+	wantFirst     string
 	wantCursor    string
 	page          int
 	pageDocuments [][]string
@@ -54,8 +55,12 @@ func (s *cursorFirestoreServer) RunQuery(req *firestorepb.RunQueryRequest, strea
 	}
 	switch s.page {
 	case 0:
-		if query.StartAt != nil {
-			return fmt.Errorf("first page unexpectedly has cursor: %+v", query.StartAt)
+		if s.wantFirst == "" {
+			if query.StartAt != nil {
+				return fmt.Errorf("first page unexpectedly has cursor: %+v", query.StartAt)
+			}
+		} else if query.StartAt == nil || !query.StartAt.GetBefore() || len(query.StartAt.GetValues()) != 1 || query.StartAt.GetValues()[0].GetReferenceValue() != s.wantFirst {
+			return fmt.Errorf("inclusive cursor = %+v, want document reference %q", query.StartAt, s.wantFirst)
 		}
 	case 1:
 		wantCursor := s.wantCursor
@@ -91,7 +96,7 @@ func TestExecuteCollectionGroupQueryUsesFullDocumentReferenceCursor(t *testing.T
 	server := grpc.NewServer()
 	parent := "projects/cursor-group-test/databases/(default)/documents"
 	cursor := "spaces/space-a/ext/datatug/queryActivityPending/delivered-c"
-	fake := &cursorFirestoreServer{t: t, parent: parent, collection: "queryActivityPending", wantCursor: parent + "/" + cursor,
+	fake := &cursorFirestoreServer{t: t, parent: parent, collection: "queryActivityPending", wantFirst: parent + "/" + cursor, wantCursor: parent + "/" + cursor,
 		pageDocuments: [][]string{{"spaces/space-a/ext/datatug/queryActivityPending/delivered-c"}, {"spaces/space-b/ext/datatug/queryActivityPending/pending-d"}}}
 	firestorepb.RegisterFirestoreServer(server, fake)
 	go func() { _ = server.Serve(listener) }()
@@ -107,11 +112,15 @@ func TestExecuteCollectionGroupQueryUsesFullDocumentReferenceCursor(t *testing.T
 	}
 	t.Cleanup(func() { _ = client.Close() })
 	db := NewDatabase("(default)", client)
-	queryPage := func(after dal.Cursor) {
+	queryPage := func(after dal.Cursor, inclusive bool) {
 		t.Helper()
 		builder := dal.From(dal.NewCollectionGroupRef(fake.collection, "")).NewQuery().OrderBy(dal.Ascending(dal.DocumentID())).Limit(3)
 		if after != "" {
-			builder = builder.StartAfter(after)
+			if inclusive {
+				builder = builder.StartFrom(after)
+			} else {
+				builder = builder.StartAfter(after)
+			}
 		}
 		query := builder.SelectKeysOnly(reflect.String)
 		reader, err := db.ExecuteQueryToRecordsReader(ctx, query)
@@ -123,8 +132,8 @@ func TestExecuteCollectionGroupQueryUsesFullDocumentReferenceCursor(t *testing.T
 			t.Fatalf("read collection-group page after %q: %v", after, err)
 		}
 	}
-	queryPage("")
-	queryPage(dal.Cursor(cursor))
+	queryPage(dal.Cursor(cursor), true)
+	queryPage(dal.Cursor(cursor), false)
 	if fake.page != 2 {
 		t.Fatalf("RunQuery calls = %d, want 2", fake.page)
 	}
