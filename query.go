@@ -14,6 +14,7 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 	}
 
 	var query firestore.Query
+	collectionGroup := false
 
 	switch q := q.(type) {
 	case dal.StructuredQuery:
@@ -26,14 +27,19 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 			query = client.Collection(collectionPath).Query
 		case dal.CollectionGroupRef:
 			query = client.CollectionGroup(from.Name()).Query
+			collectionGroup = true
 		case *dal.CollectionGroupRef:
 			query = client.CollectionGroup(from.Name()).Query
+			collectionGroup = true
 		default:
 			err = fmt.Errorf("%w: query.From() return unknonw type: %T", dal.ErrNotSupported, from)
 			return
 		}
 
-		query = applyQueryWindow(q, query)
+		query, err = applyQueryWindow(q, query, client, collectionGroup)
+		if err != nil {
+			return
+		}
 		if where := q.Where(); where != nil {
 			if query, err = applyWhere(where, query); err != nil {
 				return
@@ -49,7 +55,7 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 	}
 }
 
-func applyQueryWindow(q dal.StructuredQuery, query firestore.Query) firestore.Query {
+func applyQueryWindow(q dal.StructuredQuery, query firestore.Query, client *firestore.Client, collectionGroup bool) (firestore.Query, error) {
 	if limit := q.Limit(); limit > 0 {
 		query = query.Limit(limit)
 	}
@@ -57,15 +63,37 @@ func applyQueryWindow(q dal.StructuredQuery, query firestore.Query) firestore.Qu
 		query = query.Offset(offset)
 	}
 	if startFrom := q.StartFrom(); startFrom != "" {
-		// dal.Cursor is a named string type. Firestore's DocumentID cursor
-		// validation accepts string, not a distinct named type, so normalize at
-		// this adapter boundary while letting the SDK bind the document ref.
-		query = query.StartAt(string(startFrom))
+		cursor, err := firestoreDocumentIDCursor(client, startFrom, collectionGroup)
+		if err != nil {
+			return query, err
+		}
+		query = query.StartAt(cursor)
 	}
 	if startAfter := q.StartAfter(); startAfter != "" {
-		query = query.StartAfter(string(startAfter))
+		cursor, err := firestoreDocumentIDCursor(client, startAfter, collectionGroup)
+		if err != nil {
+			return query, err
+		}
+		query = query.StartAfter(cursor)
 	}
-	return query
+	return query, nil
+}
+
+func firestoreDocumentIDCursor(client *firestore.Client, cursor dal.Cursor, collectionGroup bool) (any, error) {
+	// Collection-group document IDs are full relative document paths, so the
+	// Firestore SDK needs a DocumentRef to produce a valid resource-name cursor.
+	// Collection-scoped cursors remain the document ID string.
+	if !collectionGroup {
+		return string(cursor), nil
+	}
+	if client == nil {
+		return nil, fmt.Errorf("Firestore client is required for collection-group document cursor")
+	}
+	ref := client.Doc(string(cursor))
+	if ref == nil {
+		return nil, fmt.Errorf("invalid collection-group document cursor %q", cursor)
+	}
+	return ref, nil
 }
 
 func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) firestore.Query {
