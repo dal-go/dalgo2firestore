@@ -146,6 +146,35 @@ func TestCollectionGroupDocumentIDCursorRejectsInvalidPath(t *testing.T) {
 	}
 }
 
+func TestCollectionGroupDocumentIDCursorRejectsInvalidQuery(t *testing.T) {
+	client, err := firestore.NewClient(context.Background(), "query-window-test", option.WithoutAuthentication())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = client.Close() })
+	for _, test := range []struct {
+		name  string
+		build func(dal.IQueryBuilder) dal.IQueryBuilder
+	}{
+		{name: "inclusive", build: func(b dal.IQueryBuilder) dal.IQueryBuilder { return b.StartFrom("malformed") }},
+		{name: "exclusive", build: func(b dal.IQueryBuilder) dal.IQueryBuilder { return b.StartAfter("malformed") }},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			builder := dal.From(dal.NewCollectionGroupRef("queryActivityPending", "")).NewQuery().OrderBy(dal.Ascending(dal.DocumentID()))
+			query := test.build(builder).SelectKeysOnly(reflect.String)
+			if _, err := dalQuery2firestoreIterator(context.Background(), query, client); err == nil {
+				t.Fatal("malformed collection-group query unexpectedly accepted")
+			}
+		})
+	}
+}
+
+func TestCollectionGroupDocumentIDCursorRequiresClient(t *testing.T) {
+	if _, err := firestoreDocumentIDCursor(nil, "spaces/space-a/queries/query-a", true); err == nil {
+		t.Fatal("collection-group cursor unexpectedly accepted without a Firestore client")
+	}
+}
+
 func TestCollectionGroupDocumentIDCursorsUseDocumentReferences(t *testing.T) {
 	client, err := firestore.NewClient(context.Background(), "query-window-test", option.WithoutAuthentication())
 	if err != nil {
