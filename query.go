@@ -18,6 +18,12 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 
 	switch q := q.(type) {
 	case dal.StructuredQuery:
+		if len(q.GroupBy()) > 0 {
+			return nil, fmt.Errorf("%w: GROUP BY is not supported by dalgo2firestore", dal.ErrNotSupported)
+		}
+		if q.Having() != nil {
+			return nil, fmt.Errorf("%w: HAVING is not supported by dalgo2firestore", dal.ErrNotSupported)
+		}
 		switch from := q.From().Base().(type) {
 		case dal.CollectionRef:
 			collectionPath := from.Path()
@@ -183,6 +189,6 @@ func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error)
 	case dal.Comparison:
 		return q, applyComparison(cond)
 	default:
-		return q, fmt.Errorf("only comparison or group conditions are supported at root level of where clause, got: %T", cond)
+		return q, fmt.Errorf("%w: only comparison or group conditions are supported at root level of where clause, got: %T", dal.ErrNotSupported, cond)
 	}
 }

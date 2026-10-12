@@ -46,13 +46,17 @@ func (d *firestoreReader) Next() (record dalrecord.Record, err error) {
 				// capability contract instead of panicking in record.NewRecordWithIncompleteKey.
 				return nil, fmt.Errorf("%w: query without IntoRecord and ID kind (e.g. column projection or aggregation) is not supported by dalgo2firestore", dal.ErrNotSupported)
 			}
-			record = dalrecord.NewRecordWithIncompleteKey(base.Name(), idKind, nil)
+			var data any
+			if len(q.Columns()) > 0 {
+				data = make(map[string]any)
+			}
+			record = dalrecord.NewRecordWithIncompleteKey(base.Name(), idKind, data)
 		}
 
 		var doc *firestore.DocumentSnapshot
 		if doc, err = docIteratorNext(d.docIterator); err != nil {
 			if errors.Is(err, iterator.Done) {
-				err = fmt.Errorf("%w: %v", dal.ErrNoMoreRecords, err)
+				return nil, dal.ErrNoMoreRecords
 			}
 			return record, err
 		}
