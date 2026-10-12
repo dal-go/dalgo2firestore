@@ -319,6 +319,16 @@ func TestReader_UnitCoverage(t *testing.T) {
 		t.Fatalf("expected ErrNoMoreRecords on iterator.Done, got: %v", err)
 	}
 
+	// Next() with columns and IDKind on iterator.Done
+	qWithCols := dal.WithColumns(
+		dal.From(dal.NewRootCollectionRef("c", "")).NewQuery().SelectKeysOnly(reflect.String),
+		[]dal.Column{{Expression: dal.Field("name")}},
+	)
+	rWithCols := &firestoreReader{query: qWithCols}
+	if _, err := rWithCols.Next(); !errors.Is(err, dal.ErrNoMoreRecords) {
+		t.Fatalf("expected ErrNoMoreRecords on iterator.Done with columns, got: %v", err)
+	}
+
 	// Next() generic iterator error
 	docIteratorNext = func(_ *firestore.DocumentIterator) (*firestore.DocumentSnapshot, error) {
 		return nil, errors.New("read failed")
@@ -730,6 +740,18 @@ func TestQuery_FromAndOrderBranches(t *testing.T) {
 	qUnknown := dal.NewQueryBuilder(dal.From(dal.NewQuerySource(nil, "sub"))).SelectKeysOnly(reflect.String)
 	if _, err := dalQuery2firestoreIterator(context.Background(), qUnknown, &firestore.Client{}); !errors.Is(err, dal.ErrNotSupported) {
 		t.Fatalf("expected ErrNotSupported on unknown from type, got: %v", err)
+	}
+
+	// query with GroupBy
+	qGroupBy := dal.From(dal.NewRootCollectionRef("C", "")).NewQuery().GroupBy(dal.Field("F")).SelectKeysOnly(reflect.String)
+	if _, err := dalQuery2firestoreIterator(context.Background(), qGroupBy, &firestore.Client{}); !errors.Is(err, dal.ErrNotSupported) {
+		t.Fatalf("expected ErrNotSupported on GroupBy, got: %v", err)
+	}
+
+	// query with Having
+	qHaving := dal.From(dal.NewRootCollectionRef("C", "")).NewQuery().Having(dal.WhereField("F", dal.Equal, 1)).SelectKeysOnly(reflect.String)
+	if _, err := dalQuery2firestoreIterator(context.Background(), qHaving, &firestore.Client{}); !errors.Is(err, dal.ErrNotSupported) {
+		t.Fatalf("expected ErrNotSupported on Having, got: %v", err)
 	}
 
 	// firestoreOrderExpression with FieldRef.IsID() == true
