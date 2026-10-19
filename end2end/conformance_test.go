@@ -33,8 +33,9 @@ func TestConformance(t *testing.T) {
 	emulatorExited := false
 	go handleCommandStderr(t, cmdStdErr, &emulatorExited)
 	select {
-	case <-handleEmulatorClosing(t, cmd):
+	case err := <-handleEmulatorClosing(t, cmd):
 		emulatorExited = true
+		t.Fatalf("Firestore emulator exited before becoming ready: %v", err)
 	case <-waitForEmulatorReadiness(t, cmdStdout, &emulatorExited):
 		runConformanceAgainstEmulator(t)
 	}

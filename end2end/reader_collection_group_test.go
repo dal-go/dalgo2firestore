@@ -21,9 +21,9 @@ func TestFirestoreReaderCollectionGroupUsesReturnedDocumentPaths(t *testing.T) {
 	emulatorExited := false
 	go handleCommandStderr(t, cmdStdErr, &emulatorExited)
 	select {
-	case <-handleEmulatorClosing(t, cmd):
+	case err := <-handleEmulatorClosing(t, cmd):
 		emulatorExited = true
-		t.Fatal("Firestore emulator exited before becoming ready")
+		t.Fatalf("Firestore emulator exited before becoming ready: %v", err)
 	case <-waitForEmulatorReadiness(t, cmdStdout, &emulatorExited):
 		runCollectionGroupPathQuery(t)
 	}
