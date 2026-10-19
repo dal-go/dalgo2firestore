@@ -28,8 +28,9 @@ func TestEndToEnd(t *testing.T) {
 	emulatorExited := false
 	go handleCommandStderr(t, cmdStdErr, &emulatorExited)
 	select {
-	case <-handleEmulatorClosing(t, cmd):
+	case err := <-handleEmulatorClosing(t, cmd):
 		emulatorExited = true
+		t.Fatalf("Firebase emulator exited before becoming ready: %v", err)
 	case <-waitForEmulatorReadiness(t, cmdStdout, &emulatorExited):
 		testEndToEnd(t)
 	}
