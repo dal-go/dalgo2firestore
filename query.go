@@ -8,7 +8,7 @@ import (
 	"github.com/dal-go/dalgo/dal"
 )
 
-func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestore.Client) (docIterator *firestore.DocumentIterator, err error) {
+func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestore.Client, transactions ...*firestore.Transaction) (docIterator *firestore.DocumentIterator, err error) {
 	if client == nil {
 		panic("client is a required parameter, got nil")
 	}
@@ -53,6 +53,9 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		}
 		if orderBy := q.OrderBy(); orderBy != nil {
 			query = applyOrderBy(orderBy, query)
+		}
+		if len(transactions) > 0 {
+			return transactions[0].Documents(query), nil
 		}
 		return query.Documents(c), nil
 	default:
