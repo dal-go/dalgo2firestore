@@ -23,7 +23,7 @@ func (db database) RunReadonlyTransaction(ctx context.Context, f dal.ROTxWorker,
 	options = append(options, dal.TxWithReadonly())
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
 	err = runFirestoreTransaction(db.client, ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
+		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.transactionQueryExecutor(tx)})
 	}, firestoreTxOptions...)
 	if Debugf != nil {
 		Debugf(ctx, "RunReadonlyTransaction() completed in %v, err: %v", time.Since(started), err)
@@ -38,7 +38,7 @@ func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker
 	}
 	firestoreTxOptions := createFirestoreTransactionOptions(options)
 	err = runFirestoreTransaction(db.client, ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.QueryExecutor})
+		return f(ctx, transaction{db: db, tx: tx, QueryExecutor: db.transactionQueryExecutor(tx)})
 	}, firestoreTxOptions...)
 	// A transactional write is BUFFERED: firestore.Transaction.Create queues the
 	// write and returns nil, so a duplicate key is not reported by tx.Insert at
@@ -53,6 +53,15 @@ func (db database) RunReadwriteTransaction(ctx context.Context, f dal.RWTxWorker
 		Debugf(ctx, "RunReadwriteTransaction() completed in %v, err: %v", time.Since(started), err)
 	}
 	return err
+}
+
+// transactionQueryExecutor retains the SDK transaction for every query read.
+// Reusing db.QueryExecutor would run queries outside the transaction snapshot
+// and omit both its transaction selector and SDK read-after-write protection.
+func (db database) transactionQueryExecutor(tx *firestore.Transaction) dal.QueryExecutor {
+	return queryExecutor{getRecordsReader: func(ctx context.Context, query dal.Query) (dal.RecordsReader, error) {
+		return newFirestoreReader(ctx, db.client, query, tx)
+	}}
 }
 
 func createFirestoreTransactionOptions(opts []dal.TransactionOption) (options []firestore.TransactionOption) {

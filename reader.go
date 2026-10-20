@@ -26,6 +26,9 @@ type firestoreReader struct {
 }
 
 func (d *firestoreReader) Close() error {
+	if d.docIterator != nil {
+		d.docIterator.Stop()
+	}
 	return nil
 }
 
@@ -157,14 +160,14 @@ func (d *firestoreReader) Cursor() (string, error) {
 	return "", dal.ErrNotImplementedYet
 }
 
-func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Query) (reader *firestoreReader, err error) {
+func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Query, transactions ...*firestore.Transaction) (reader *firestoreReader, err error) {
 	if query == nil {
 		return nil, fmt.Errorf("query is required parameter, got nil")
 	}
 	reader = &firestoreReader{
 		query: query,
 	}
-	reader.docIterator, err = dalQuery2firestoreIterator(c, query, client)
+	reader.docIterator, err = dalQuery2firestoreIterator(c, query, client, transactions...)
 	return reader, err
 }
 

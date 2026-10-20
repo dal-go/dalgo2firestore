@@ -15,6 +15,14 @@ We build with our own tooling:
 - **[DataTug](https://datatug.io)** — query & explore data
 <!-- /dev-approach -->
 
+## Transaction queries
+
+Query readers created by a read-only or read-write transaction use that exact
+Firestore transaction, including its snapshot and read-after-write protection.
+Use the callback's context and consume and close readers before the transaction
+callback returns. Closing a reader stops its Firestore document iterator.
+Ordinary database queries retain their nontransactional behavior.
+
 ## [End-to-end tests](end2end)
 
 All `dalgo` drivers have to pass [dalgo's end-to-end tests](https://github.com/dal-go/dalgo/end2end).
