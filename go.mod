@@ -2,13 +2,13 @@ module github.com/dal-go/dalgo2firestore
 
 go 1.26.0
 
-toolchain go1.27.2
+toolchain go1.27.3
 
 require (
-	cloud.google.com/go/firestore v1.26.0
-	github.com/dal-go/dalgo v0.95.1
+	cloud.google.com/go/firestore v1.29.0
+	github.com/dal-go/dalgo v0.95.3
 	github.com/pkg/errors v0.9.1
-	google.golang.org/api v0.304.0
+	google.golang.org/api v0.308.0
 	google.golang.org/grpc v1.84.0
 )
 
@@ -25,7 +25,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.3.0 // indirect
 	cloud.google.com/go/compute/metadata v0.10.0 // indirect
 	cloud.google.com/go/longrunning v1.2.0 // indirect
-	github.com/RoaringBitmap/roaring/v2 v2.29.0 // indirect
+	github.com/RoaringBitmap/roaring/v2 v2.30.0 // indirect
 	github.com/bits-and-blooms/bitset v1.24.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dal-go/record v0.1.5
@@ -38,7 +38,7 @@ require (
 	github.com/mschoch/smat v0.2.0 // indirect
 	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/strongo/random v0.0.3 // indirect
-	github.com/strongo/validation v0.0.16 // indirect
+	github.com/strongo/validation v0.0.17 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.67.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.69.0 // indirect
@@ -54,6 +54,6 @@ require (
 	golang.org/x/time v0.16.0 // indirect
 	google.golang.org/genproto v0.0.0-20260715232425-e75dac1f907d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260715232425-e75dac1f907d // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b // indirect
 	google.golang.org/protobuf v1.36.12
 )
