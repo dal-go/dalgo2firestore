@@ -240,7 +240,7 @@ func getMulti(
 
 	logMultiRecords(ctx, caller+".GetMulti", records, started, err)
 
-	return nil
+	return err
 
 }
 
