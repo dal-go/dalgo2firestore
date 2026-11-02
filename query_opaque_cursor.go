@@ -64,7 +64,7 @@ func (d *firestoreReader) opaqueCursor() (string, error) {
 		return "", err
 	}
 	if base64.RawURLEncoding.EncodedLen(len(encoded))+len(opaqueCursorPrefix) > maxOpaqueCursorBytes {
-		return "", fmt.Errorf("Firestore continuation exceeds size limit")
+		return "", fmt.Errorf("firestore continuation exceeds size limit")
 	}
 	return opaqueCursorPrefix + base64.RawURLEncoding.EncodeToString(encoded), nil
 }
@@ -94,7 +94,7 @@ func applyOpaqueCursor(q dal.StructuredQuery, native firestore.Query) (firestore
 	_ = proto.Unmarshal(baseBytes, base)
 	got, want := position.GetStructuredQuery(), base.GetStructuredQuery()
 	if got == nil || want == nil || got.StartAt == nil || got.StartAt.Before || len(got.StartAt.Values) != len(want.OrderBy) {
-		return native, fmt.Errorf("Firestore continuation must contain a full exclusive position")
+		return native, fmt.Errorf("firestore continuation must contain a full exclusive position")
 	}
 	cursor := got.StartAt
 	if err := validateOpaqueValues(cursor); err != nil {
@@ -102,24 +102,24 @@ func applyOpaqueCursor(q dal.StructuredQuery, native firestore.Query) (firestore
 	}
 	got.StartAt = nil
 	if !proto.Equal(base, position) {
-		return native, fmt.Errorf("Firestore continuation belongs to a different query")
+		return native, fmt.Errorf("firestore continuation belongs to a different query")
 	}
 	// The last explicit order field is DocumentID. Its full resource name must
 	// remain in this exact project/database and collection scope.
 	ref := cursor.Values[len(cursor.Values)-1].GetReferenceValue()
 	prefix := base.Parent + "/"
 	if !strings.HasPrefix(ref, prefix) {
-		return native, fmt.Errorf("Firestore continuation has a foreign document reference")
+		return native, fmt.Errorf("firestore continuation has a foreign document reference")
 	}
 	path := strings.TrimPrefix(ref, prefix)
 	parts := strings.Split(path, "/")
 	from := want.GetFrom()
 	if len(from) != 1 || len(parts) < 2 || len(parts)%2 != 0 || parts[len(parts)-2] != from[0].CollectionId || (!from[0].AllDescendants && len(parts) != 2) {
-		return native, fmt.Errorf("Firestore continuation has a different collection scope")
+		return native, fmt.Errorf("firestore continuation has a different collection scope")
 	}
 	for _, part := range parts {
 		if part == "" {
-			return native, fmt.Errorf("Firestore continuation has an incomplete document path")
+			return native, fmt.Errorf("firestore continuation has an incomplete document path")
 		}
 	}
 	// Install only the validated position into the independently rebuilt query.
@@ -131,16 +131,16 @@ func applyOpaqueCursor(q dal.StructuredQuery, native firestore.Query) (firestore
 
 func validateOpaqueValues(cursor *pb.Cursor) error {
 	if len(cursor.ProtoReflect().GetUnknown()) != 0 {
-		return fmt.Errorf("Firestore continuation has unknown cursor fields")
+		return fmt.Errorf("firestore continuation has unknown cursor fields")
 	}
 	for i, value := range cursor.Values {
 		if value == nil || value.ValueType == nil || len(value.ProtoReflect().GetUnknown()) != 0 {
-			return fmt.Errorf("Firestore continuation has an invalid value")
+			return fmt.Errorf("firestore continuation has an invalid value")
 		}
 		switch v := value.ValueType.(type) {
 		case *pb.Value_TimestampValue:
 			if v.TimestampValue == nil || v.TimestampValue.CheckValid() != nil {
-				return fmt.Errorf("Firestore continuation has an invalid timestamp")
+				return fmt.Errorf("firestore continuation has an invalid timestamp")
 			}
 		case *pb.Value_ReferenceValue:
 			if i != len(cursor.Values)-1 {
