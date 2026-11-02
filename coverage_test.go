@@ -277,8 +277,8 @@ func TestReader_UnitCoverage(t *testing.T) {
 	if err := r.Close(); err != nil {
 		t.Fatalf("unexpected Close error: %v", err)
 	}
-	if _, err := r.Cursor(); !errors.Is(err, dal.ErrNotImplementedYet) {
-		t.Fatalf("expected ErrNotImplementedYet, got: %v", err)
+	if _, err := r.Cursor(); !errors.Is(err, dal.ErrNotSupported) {
+		t.Fatalf("expected ErrNotSupported, got: %v", err)
 	}
 
 	// newFirestoreReader nil query
@@ -951,8 +951,8 @@ func TestFirestoreReader_NextBranches(t *testing.T) {
 	if err := r.Close(); err != nil {
 		t.Fatalf("unexpected Close error: %v", err)
 	}
-	if _, err := r.Cursor(); !errors.Is(err, dal.ErrNotImplementedYet) {
-		t.Fatalf("expected ErrNotImplementedYet for Cursor, got: %v", err)
+	if _, err := r.Cursor(); !errors.Is(err, dal.ErrNotSupported) {
+		t.Fatalf("expected ErrNotSupported for Cursor, got: %v", err)
 	}
 
 	// Next() with iterator.Done

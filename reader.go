@@ -23,6 +23,9 @@ type firestoreReader struct {
 	i           int // iteration
 	query       dal.Query
 	docIterator *firestore.DocumentIterator
+	nativeQuery firestore.Query
+	canCursor   bool
+	lastDoc     *firestore.DocumentSnapshot
 }
 
 func (d *firestoreReader) Close() error {
@@ -93,6 +96,7 @@ func (d *firestoreReader) Next() (record dalrecord.Record, err error) {
 			loaded.MarkAsChanged()
 		}
 		d.i++
+		d.lastDoc = doc
 		return loaded, nil
 	default:
 		return nil, fmt.Errorf("%w: Only dal.StructuredQuery is supported, got %T", dal.ErrNotSupported, d.query)
@@ -157,18 +161,39 @@ func keyFromFirestoreDocumentRef(docRef *firestore.DocumentRef, prototype *dalre
 }
 
 func (d *firestoreReader) Cursor() (string, error) {
-	return "", dal.ErrNotImplementedYet
+	return d.opaqueCursor()
 }
 
 func newFirestoreReader(c context.Context, client *firestore.Client, query dal.Query, transactions ...*firestore.Transaction) (reader *firestoreReader, err error) {
 	if query == nil {
 		return nil, fmt.Errorf("query is required parameter, got nil")
 	}
-	reader = &firestoreReader{
-		query: query,
+	if client == nil {
+		panic("client is a required parameter, got nil")
 	}
-	reader.docIterator, err = dalQuery2firestoreIterator(c, query, client, transactions...)
-	return reader, err
+	native, err := dalQuery2firestoreQuery(query, client)
+	if err != nil {
+		return nil, err
+	}
+	reader = &firestoreReader{
+		query:       query,
+		nativeQuery: native,
+	}
+	if structured, ok := query.(dal.StructuredQuery); ok && supportsOpaqueCursor(structured) {
+		// Freeze mutable DALgo predicate values/order before executing. A cursor
+		// must describe the query actually read, not a later caller mutation.
+		encoded, err := native.Serialize()
+		if err != nil {
+			return nil, err
+		}
+		reader.nativeQuery, err = deserializeCursorQuery(native, encoded)
+		if err != nil {
+			return nil, err
+		}
+		reader.canCursor = true
+	}
+	reader.docIterator = firestoreQueryIterator(c, reader.nativeQuery, transactions...)
+	return reader, nil
 }
 
 func idFromFirestoreDocRef(key *firestore.DocumentRef, idKind reflect.Kind) (id any, err error) {
