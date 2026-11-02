@@ -81,7 +81,11 @@ func TestNestedOrderReachesFirestoreWithRawFieldPath(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				defer reader.Close()
+				t.Cleanup(func() {
+					if err := reader.Close(); err != nil {
+						t.Errorf("close query reader: %v", err)
+					}
+				})
 				if _, err := reader.Next(); !errors.Is(err, dal.ErrNoMoreRecords) {
 					t.Fatalf("native query rejected valid field path: %v", err)
 				}
