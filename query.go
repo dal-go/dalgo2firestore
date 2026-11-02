@@ -118,8 +118,11 @@ func applyOrderBy(orderBy []dal.OrderExpression, q firestore.Query) firestore.Qu
 }
 
 func firestoreOrderExpression(expression dal.Expression) string {
-	if field, ok := expression.(dal.FieldRef); ok && field.IsID() {
-		return firestore.DocumentID
+	if field, ok := expression.(dal.FieldRef); ok {
+		if field.IsID() {
+			return firestore.DocumentID
+		}
+		return field.Name()
 	}
 	return expression.String()
 }
