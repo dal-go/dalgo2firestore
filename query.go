@@ -12,17 +12,30 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 	if client == nil {
 		panic("client is a required parameter, got nil")
 	}
+	query, err := dalQuery2firestoreQuery(q, client)
+	if err != nil {
+		return nil, err
+	}
+	return firestoreQueryIterator(c, query, transactions...), nil
+}
 
-	var query firestore.Query
+func firestoreQueryIterator(ctx context.Context, query firestore.Query, transactions ...*firestore.Transaction) *firestore.DocumentIterator {
+	if len(transactions) > 0 {
+		return transactions[0].Documents(query)
+	}
+	return query.Documents(ctx)
+}
+
+func dalQuery2firestoreQuery(q dal.Query, client *firestore.Client) (query firestore.Query, err error) {
 	collectionGroup := false
 
 	switch q := q.(type) {
 	case dal.StructuredQuery:
 		if len(q.GroupBy()) > 0 {
-			return nil, fmt.Errorf("%w: GROUP BY is not supported by dalgo2firestore", dal.ErrNotSupported)
+			return query, fmt.Errorf("%w: GROUP BY is not supported by dalgo2firestore", dal.ErrNotSupported)
 		}
 		if q.Having() != nil {
-			return nil, fmt.Errorf("%w: HAVING is not supported by dalgo2firestore", dal.ErrNotSupported)
+			return query, fmt.Errorf("%w: HAVING is not supported by dalgo2firestore", dal.ErrNotSupported)
 		}
 		switch from := q.From().Base().(type) {
 		case dal.CollectionRef:
@@ -42,10 +55,6 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 			return
 		}
 
-		query, err = applyQueryWindow(q, query, client, collectionGroup)
-		if err != nil {
-			return
-		}
 		if where := q.Where(); where != nil {
 			if query, err = applyWhere(where, query); err != nil {
 				return
@@ -54,10 +63,7 @@ func dalQuery2firestoreIterator(c context.Context, q dal.Query, client *firestor
 		if orderBy := q.OrderBy(); orderBy != nil {
 			query = applyOrderBy(orderBy, query)
 		}
-		if len(transactions) > 0 {
-			return transactions[0].Documents(query), nil
-		}
-		return query.Documents(c), nil
+		return applyQueryWindow(q, query, client, collectionGroup)
 	default:
 		err = fmt.Errorf("only dal.StructuredQueries are supported, got %T ", q)
 		return
@@ -70,6 +76,9 @@ func applyQueryWindow(q dal.StructuredQuery, query firestore.Query, client *fire
 	}
 	if offset := q.Offset(); offset > 0 {
 		query = query.Offset(offset)
+	}
+	if isOpaqueCursor(q.StartFrom()) || isOpaqueCursor(q.StartAfter()) {
+		return applyOpaqueCursor(q, query)
 	}
 	if startFrom := q.StartFrom(); startFrom != "" {
 		cursor, err := firestoreDocumentIDCursor(client, startFrom, collectionGroup)
