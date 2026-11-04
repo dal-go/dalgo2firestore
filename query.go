@@ -148,6 +148,21 @@ var dalOperator2firestore = map[dal.Operator]string{
 	dal.In:             "in",
 }
 
+// applyIsNull translates a dal.IsNullCondition. Firestore never matches documents
+// that lack the field, so only IS NOT NULL has an exact native form (`field != null`,
+// which excludes both absent and null values). IS NULL is rejected because a native
+// `field == null` would miss documents where the field is absent.
+func applyIsNull(cond dal.IsNullCondition, q firestore.Query) (firestore.Query, error) {
+	field, ok := cond.Operand().(dal.FieldRef)
+	if !ok {
+		return q, fmt.Errorf("%w: IS [NOT] NULL is supported by Firestore only on a field, got: %T", dal.ErrNotSupported, cond.Operand())
+	}
+	if !cond.Negated() {
+		return q, fmt.Errorf("%w: IS NULL on field %q cannot be expressed exactly in Firestore: a native `== null` filter would miss documents where the field is absent; use IS NOT NULL", dal.ErrNotSupported, field.Name())
+	}
+	return q.Where(field.Name(), "!=", nil), nil
+}
+
 func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error) {
 	var applyComparison = func(comparison dal.Comparison) error {
 		switch left := comparison.Left.(type) {
@@ -196,6 +211,11 @@ func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error)
 				if err := applyComparison(c); err != nil {
 					return q, err
 				}
+			case dal.IsNullCondition:
+				var err error
+				if q, err = applyIsNull(c, q); err != nil {
+					return q, err
+				}
 			default:
 				return q, fmt.Errorf("only comparisons are supported in group condition, got: %T", c)
 			}
@@ -203,6 +223,8 @@ func applyWhere(where dal.Condition, q firestore.Query) (firestore.Query, error)
 		return q, nil
 	case dal.Comparison:
 		return q, applyComparison(cond)
+	case dal.IsNullCondition:
+		return applyIsNull(cond, q)
 	default:
 		return q, fmt.Errorf("%w: only comparison or group conditions are supported at root level of where clause, got: %T", dal.ErrNotSupported, cond)
 	}
